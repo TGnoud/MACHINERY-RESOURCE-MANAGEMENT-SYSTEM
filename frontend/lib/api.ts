@@ -265,3 +265,98 @@ export const dashboardApi = {
     );
   },
 };
+
+// --- Machinery Types ---
+
+export type MachineryStatus = 'AVAILABLE' | 'RENTED' | 'MAINTENANCE';
+
+export type CategoryItem = {
+  _id: string;
+  name: string;
+  description?: string;
+};
+
+export type MachineryItem = {
+  _id: string;
+  name: string;
+  serialNumber: string;
+  manufacturer?: string;
+  operatingHours: number;
+  fuelConsumption: number;
+  purchaseYear?: number;
+  status: MachineryStatus;
+  category?: CategoryItem | null;
+  specs: Record<string, unknown>;
+  location?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MachineryListResponse = {
+  data: MachineryItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type MachineryQueryParams = {
+  page?: number;
+  limit?: number;
+  status?: MachineryStatus;
+  category?: string;
+  search?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
+};
+
+export const machineryApi = {
+  getAll(params?: MachineryQueryParams) {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          query.set(key, String(value));
+        }
+      });
+    }
+    const qs = query.toString();
+    return apiFetch<MachineryListResponse>(
+      `/api/v1/machineries${qs ? `?${qs}` : ''}`,
+      { auth: true },
+    );
+  },
+  getById(id: string) {
+    return apiFetch<MachineryItem>(`/api/v1/machineries/${id}`, {
+      auth: true,
+    });
+  },
+  create(data: Record<string, unknown>) {
+    return apiFetch<MachineryItem>('/api/v1/machineries', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  update(id: string, data: Record<string, unknown>) {
+    return apiFetch<MachineryItem>(`/api/v1/machineries/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  remove(id: string) {
+    return apiFetch<{ message: string }>(`/api/v1/machineries/${id}`, {
+      method: 'DELETE',
+      auth: true,
+    });
+  },
+};
+
+export const categoryApi = {
+  getAll() {
+    return apiFetch<CategoryItem[]>('/api/v1/categories', {
+      auth: true,
+    });
+  },
+};

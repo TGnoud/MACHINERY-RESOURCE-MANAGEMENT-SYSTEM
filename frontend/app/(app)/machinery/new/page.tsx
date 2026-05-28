@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import {
   ImagePlus,
   Info,
+  Loader2,
   LocateFixed,
   Plus,
   Save,
@@ -13,26 +14,130 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { Card, PagePad, PrimaryButton } from "../../_components/ui";
 import {
-  Card,
-  PagePad,
-  PrimaryButton,
-} from "../../_components/ui";
-import { getStoredUser } from "@/lib/api";
+  getStoredUser,
+  machineryApi,
+  categoryApi,
+  type CategoryItem,
+  type MachineryStatus,
+} from "@/lib/api";
+
+const STATUS_OPTIONS: { label: string; value: MachineryStatus }[] = [
+  { label: "Sẵn sàng", value: "AVAILABLE" },
+  { label: "Đang thuê", value: "RENTED" },
+  { label: "Bảo trì", value: "MAINTENANCE" },
+];
 
 export default function MachineryFormPage() {
   const router = useRouter();
   const [isAllowed] = useState(() => {
     const user = getStoredUser();
-
     return !user || user.role === "ADMIN";
   });
+
+  // Categories from API
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+
+  // Form fields
+  const [name, setName] = useState("");
+  const [serialNumber, setSerialNumber] = useState("");
+  const [manufacturer, setManufacturer] = useState("");
+  const [purchaseYear, setPurchaseYear] = useState("");
+  const [operatingHours, setOperatingHours] = useState("");
+  const [fuelConsumption, setFuelConsumption] = useState("");
+  const [location, setLocation] = useState("");
+  const [status, setStatus] = useState<MachineryStatus>("AVAILABLE");
+  const [categoryId, setCategoryId] = useState("");
+  const [specs, setSpecs] = useState<{ key: string; value: string }[]>([
+    { key: "", value: "" },
+  ]);
+
+  // UI states
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAllowed) {
       router.replace("/403");
     }
   }, [isAllowed, router]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const data = await categoryApi.getAll();
+        setCategories(data);
+      } catch {
+        // Silently fail - user can still submit without category
+      }
+    }
+    loadCategories();
+  }, []);
+
+  const addSpecRow = () => {
+    setSpecs((prev) => [...prev, { key: "", value: "" }]);
+  };
+
+  const removeSpecRow = (index: number) => {
+    setSpecs((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateSpec = (index: number, field: "key" | "value", val: string) => {
+    setSpecs((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, [field]: val } : s)),
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!name.trim()) {
+      setError("Tên thiết bị là bắt buộc.");
+      return;
+    }
+
+    if (!serialNumber.trim()) {
+      setError("Số serial là bắt buộc.");
+      return;
+    }
+
+    setSaving(true);
+
+    // Build specs object from rows
+    const specsObj: Record<string, string> = {};
+    specs.forEach((s) => {
+      if (s.key.trim() && s.value.trim()) {
+        specsObj[s.key.trim()] = s.value.trim();
+      }
+    });
+
+    const payload: Record<string, unknown> = {
+      name: name.trim(),
+      serialNumber: serialNumber.trim(),
+      status,
+      operatingHours: operatingHours ? Number(operatingHours) : 0,
+      fuelConsumption: fuelConsumption ? Number(fuelConsumption) : 0,
+      specs: specsObj,
+    };
+
+    if (manufacturer.trim()) payload.manufacturer = manufacturer.trim();
+    if (purchaseYear) payload.purchaseYear = Number(purchaseYear);
+    if (location.trim()) payload.location = location.trim();
+    if (categoryId) payload.category = categoryId;
+
+    try {
+      await machineryApi.create(payload);
+      router.push("/machinery");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Đã xảy ra lỗi khi lưu thiết bị.",
+      );
+      setSaving(false);
+    }
+  };
 
   if (!isAllowed) {
     return <div className="min-h-screen bg-slate-50" />;
@@ -58,14 +163,30 @@ export default function MachineryFormPage() {
             >
               Hủy
             </Link>
-            <PrimaryButton className="h-11 px-6">
-              <Save className="size-4" />
-              Lưu thay đổi
+            <PrimaryButton
+              className="h-11 px-6"
+              disabled={saving}
+              onClick={handleSubmit}
+            >
+              {saving ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Save className="size-4" />
+              )}
+              {saving ? "Đang lưu..." : "Lưu thay đổi"}
             </PrimaryButton>
           </div>
         </div>
 
-        <form className="grid gap-6 lg:grid-cols-12">
+        {/* Error message */}
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <form className="grid gap-6 lg:grid-cols-12" onSubmit={handleSubmit}>
+          {/* Left column */}
           <div className="space-y-6 lg:col-span-8">
             <Card className="p-6">
               <CardTitle icon={Info} title="Thông tin cơ bản" />
@@ -73,14 +194,43 @@ export default function MachineryFormPage() {
                 <Field
                   className="md:col-span-2"
                   label="Tên thiết bị *"
+                  onChange={setName}
                   placeholder="Nhập tên máy móc..."
+                  value={name}
                 />
-                <Field label="Số Serial" placeholder="Ví dụ: SN-2023-XYZ" />
+                <Field
+                  label="Số Serial *"
+                  onChange={setSerialNumber}
+                  placeholder="Ví dụ: SN-2023-XYZ"
+                  value={serialNumber}
+                />
                 <Field
                   label="Nhà sản xuất"
+                  onChange={setManufacturer}
                   placeholder="Ví dụ: Komatsu, Caterpillar..."
+                  value={manufacturer}
                 />
-                <Field label="Năm mua" placeholder="YYYY" type="number" />
+                <Field
+                  label="Năm mua"
+                  onChange={setPurchaseYear}
+                  placeholder="YYYY"
+                  type="number"
+                  value={purchaseYear}
+                />
+                <Field
+                  label="Số giờ hoạt động"
+                  onChange={setOperatingHours}
+                  placeholder="0"
+                  type="number"
+                  value={operatingHours}
+                />
+                <Field
+                  label="Mức tiêu hao nhiên liệu (L/h)"
+                  onChange={setFuelConsumption}
+                  placeholder="0"
+                  type="number"
+                  value={fuelConsumption}
+                />
               </div>
             </Card>
 
@@ -94,6 +244,7 @@ export default function MachineryFormPage() {
                 </div>
                 <button
                   className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-bold text-sky-700 transition hover:bg-sky-50"
+                  onClick={addSpecRow}
                   type="button"
                 >
                   <Plus className="size-4" />
@@ -101,12 +252,26 @@ export default function MachineryFormPage() {
                 </button>
               </div>
               <div className="space-y-3">
-                <SpecRow name="Công suất" value="110kW" />
-                <SpecRow name="" value="" />
+                {specs.map((spec, index) => (
+                  <SpecRow
+                    key={index}
+                    name={spec.key}
+                    onChangeName={(val) => updateSpec(index, "key", val)}
+                    onChangeValue={(val) => updateSpec(index, "value", val)}
+                    onRemove={() => removeSpecRow(index)}
+                    value={spec.value}
+                  />
+                ))}
+                {specs.length === 0 && (
+                  <p className="py-4 text-center text-sm text-slate-500">
+                    Chưa có thông số. Nhấn &ldquo;Thêm dòng&rdquo; để bắt đầu.
+                  </p>
+                )}
               </div>
             </Card>
           </div>
 
+          {/* Right column */}
           <div className="space-y-6 lg:col-span-4">
             <Card className="p-6">
               <h2 className="mb-4 text-xl font-bold text-slate-950">
@@ -133,16 +298,24 @@ export default function MachineryFormPage() {
               <div className="space-y-4">
                 <SelectField
                   label="Danh mục *"
-                  options={["Chọn danh mục...", "Máy xúc", "Cần cẩu", "Xe tải ben"]}
+                  onChange={setCategoryId}
+                  options={[
+                    { label: "Chọn danh mục...", value: "" },
+                    ...categories.map((c) => ({
+                      label: c.name,
+                      value: c._id,
+                    })),
+                  ]}
+                  value={categoryId}
                 />
                 <SelectField
                   label="Trạng thái hiện tại"
-                  options={[
-                    "Sẵn sàng hoạt động",
-                    "Đang bảo trì",
-                    "Đang sử dụng",
-                    "Hỏng hóc",
-                  ]}
+                  onChange={(val) => setStatus(val as MachineryStatus)}
+                  options={STATUS_OPTIONS.map((o) => ({
+                    label: o.label,
+                    value: o.value,
+                  }))}
+                  value={status}
                 />
                 <label className="block space-y-1.5">
                   <span className="text-sm font-bold text-slate-600">
@@ -152,8 +325,10 @@ export default function MachineryFormPage() {
                     <LocateFixed className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
                     <input
                       className="h-11 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                      onChange={(e) => setLocation(e.target.value)}
                       placeholder="Nhập kho bãi hoặc công trường..."
                       type="text"
+                      value={location}
                     />
                   </span>
                 </label>
@@ -165,6 +340,8 @@ export default function MachineryFormPage() {
     </PagePad>
   );
 }
+
+/* ─── Sub-components ────────────────────────────────────────────── */
 
 function CardTitle({
   icon: Icon,
@@ -186,41 +363,62 @@ function Field({
   placeholder,
   type = "text",
   className = "",
+  value,
+  onChange,
 }: {
   label: string;
   placeholder: string;
   type?: string;
   className?: string;
+  value: string;
+  onChange: (val: string) => void;
 }) {
   return (
     <label className={`block space-y-1.5 ${className}`}>
       <span className="text-sm font-bold text-slate-600">{label}</span>
       <input
         className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         type={type}
+        value={value}
       />
     </label>
   );
 }
 
-function SpecRow({ name, value }: { name: string; value: string }) {
+function SpecRow({
+  name,
+  value,
+  onChangeName,
+  onChangeValue,
+  onRemove,
+}: {
+  name: string;
+  value: string;
+  onChangeName: (val: string) => void;
+  onChangeValue: (val: string) => void;
+  onRemove: () => void;
+}) {
   return (
     <div className="flex items-center gap-3">
       <input
         className="h-10 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-        defaultValue={name}
+        onChange={(e) => onChangeName(e.target.value)}
         placeholder="Tên thông số"
         type="text"
+        value={name}
       />
       <input
         className="h-10 flex-1 rounded-lg border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-        defaultValue={value}
+        onChange={(e) => onChangeValue(e.target.value)}
         placeholder="Giá trị"
         type="text"
+        value={value}
       />
       <button
         className="grid size-10 place-items-center rounded-lg text-slate-500 transition hover:bg-red-50 hover:text-red-600"
+        onClick={onRemove}
         type="button"
       >
         <Trash2 className="size-5" />
@@ -232,16 +430,26 @@ function SpecRow({ name, value }: { name: string; value: string }) {
 function SelectField({
   label,
   options,
+  value,
+  onChange,
 }: {
   label: string;
-  options: string[];
+  options: { label: string; value: string }[];
+  value: string;
+  onChange: (val: string) => void;
 }) {
   return (
     <label className="block space-y-1.5">
       <span className="text-sm font-bold text-slate-600">{label}</span>
-      <select className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10">
+      <select
+        className="h-11 w-full rounded-lg border border-slate-300 bg-white px-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+        onChange={(e) => onChange(e.target.value)}
+        value={value}
+      >
         {options.map((option) => (
-          <option key={option}>{option}</option>
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
         ))}
       </select>
     </label>

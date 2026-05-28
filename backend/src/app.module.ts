@@ -6,8 +6,10 @@ import {
   AssignmentSchema,
 } from './assignments/schemas/assignment.schema';
 import { AuthModule } from './auth/auth.module';
+import { CategoriesModule } from './categories/categories.module';
 import { Category, CategorySchema } from './categories/schemas/category.schema';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MachineriesModule } from './machineries/machineries.module';
 import {
   Machinery,
   MachinerySchema,
@@ -46,6 +48,8 @@ import { AppService } from './app.service';
     ]),
     AuthModule,
     DashboardModule,
+    MachineriesModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
