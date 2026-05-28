@@ -1,5 +1,12 @@
 /* eslint-disable no-console */
 const bcrypt = require('bcrypt');
+let modelImages = {};
+try {
+  modelImages = require('./model_images.json');
+  console.log('Loaded model-specific images dictionary.');
+} catch (e) {
+  console.log('No model_images.json found, using category fallbacks.');
+}
 const mongoose = require('mongoose');
 
 try {
@@ -561,7 +568,7 @@ async function seed() {
     const specs = specGen(rng4, rng5, rng6, rng7);
 
     const imgList = CATEGORY_IMAGES[categoryName];
-    const imageUrl = imgList[i % imgList.length];
+    const imageUrl = modelImages[name] || imgList[i % imgList.length];
 
     machineriesData.push({
       name,
