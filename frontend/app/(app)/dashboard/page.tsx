@@ -84,6 +84,61 @@ export default function DashboardPage() {
   );
   const donutGradient = `conic-gradient(#22c55e 0 ${stats.availabilityRate}%, #f59e0b ${stats.availabilityRate}% ${stats.availabilityRate + stats.rentedRate}%, #ef4444 ${stats.availabilityRate + stats.rentedRate}% 100%)`;
 
+  function handleExportReport() {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = [
+      ["GnoudCRM Dashboard Report"],
+      ["Generated at", new Date().toLocaleString("vi-VN")],
+      [],
+      ["Overview"],
+      ["Metric", "Value"],
+      ["Total equipment", stats.total],
+      ["Available", stats.available],
+      ["Rented", stats.rented],
+      ["Maintenance", stats.maintenance],
+      ["Availability rate", `${stats.availabilityRate}%`],
+      ["Rented rate", `${stats.rentedRate}%`],
+      ["Maintenance rate", `${stats.maintenanceRate}%`],
+      [],
+      ["Maintenance cost history"],
+      ["Month", "Year", "Total cost"],
+      ...costHistory.map((item) => [item.label, item.year, item.totalCost]),
+      [],
+      ["Recent maintenance"],
+      ["ID", "Equipment", "Date", "Priority", "Status"],
+      ...maintenanceRows.map((row) => [
+        row.id,
+        row.equipment,
+        row.date,
+        row.level,
+        row.status,
+      ]),
+      [],
+      ["Recent activities"],
+      ["Title", "Content", "Time", "Type"],
+      ...activities.map((activity) => [
+        activity.title,
+        activity.body,
+        activity.time,
+        activity.tone,
+      ]),
+    ];
+
+    const csv = rows.map(toCsvRow).join("\r\n");
+    const blob = new Blob([`\uFEFF${csv}`], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = url;
+    anchor.download = `gnoudcrm-dashboard-${today}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">
@@ -108,7 +163,7 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <SecondaryButton>
+            <SecondaryButton disabled={isLoading} onClick={handleExportReport}>
               <Download aria-hidden="true" className="size-4" />
               Xuất báo cáo
             </SecondaryButton>
@@ -438,4 +493,18 @@ function priorityClass(level: string) {
 
 function statusDotClass(status: string) {
   return status === "Hoàn thành" ? "bg-emerald-500" : "bg-amber-500";
+}
+
+function toCsvRow(values: unknown[]) {
+  return values.map(escapeCsvValue).join(",");
+}
+
+function escapeCsvValue(value: unknown) {
+  const text = String(value ?? "");
+
+  if (/[",\n\r]/.test(text)) {
+    return `"${text.replaceAll('"', '""')}"`;
+  }
+
+  return text;
 }

@@ -55,9 +55,9 @@ const navItems: NavItem[] = [
 
 const pageMeta: Record<
   string,
-  { search?: string; breadcrumbs?: string[]; disabled?: boolean }
+  { search?: string; breadcrumbs?: string[]; disabled?: boolean; hideSearch?: boolean }
 > = {
-  "/dashboard": { search: "Tìm kiếm…" },
+  "/dashboard": { hideSearch: true },
   "/machinery": { search: "Tìm kiếm thiết bị, serial…" },
   "/machinery/new": { breadcrumbs: ["Máy móc", "Thêm/Sửa thiết bị"] },
   "/assignments": { breadcrumbs: ["Lịch trình", "Phân bổ & Điều phối"] },
@@ -171,7 +171,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="hidden min-w-0 md:block">
           {meta.breadcrumbs ? (
             <Breadcrumbs items={meta.breadcrumbs} disabled={isForbidden} />
-          ) : (
+          ) : meta.hideSearch ? null : (
             <SearchBox
               disabled={Boolean(meta.disabled)}
               placeholder={meta.search ?? "Tìm kiếm…"}

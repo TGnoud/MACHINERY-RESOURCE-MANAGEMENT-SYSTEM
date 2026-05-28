@@ -1,4 +1,4 @@
-import type { ComponentType, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ComponentType, ReactNode } from "react";
 
 export function Card({
   children,
@@ -22,17 +22,19 @@ export function Card({
 export function PrimaryButton({
   children,
   className = "",
-}: {
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  className?: string;
 }) {
   return (
     <button
+      {...props}
       className={[
         "inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-sky-700 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-700 focus-visible:ring-offset-2",
+        props.disabled ? "cursor-not-allowed opacity-60" : "",
         className,
       ].join(" ")}
-      type="button"
+      type={props.type ?? "button"}
     >
       {children}
     </button>
@@ -42,17 +44,19 @@ export function PrimaryButton({
 export function SecondaryButton({
   children,
   className = "",
-}: {
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  className?: string;
 }) {
   return (
     <button
+      {...props}
       className={[
         "inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2",
+        props.disabled ? "cursor-not-allowed opacity-60" : "",
         className,
       ].join(" ")}
-      type="button"
+      type={props.type ?? "button"}
     >
       {children}
     </button>
