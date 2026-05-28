@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tạo phiếu điều phối - GnoudCRM</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#2c1600",
+                        "outline": "#6e7881",
+                        "primary": "#006591",
+                        "on-primary-fixed-variant": "#004c6e",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface-dim": "#d2d9f4",
+                        "on-primary-fixed": "#001e2f",
+                        "surface-container-high": "#e2e7ff",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#de8712",
+                        "surface-bright": "#faf8ff",
+                        "error": "#ba1a1a",
+                        "tertiary": "#8a5100",
+                        "primary-fixed": "#c9e6ff",
+                        "on-tertiary-container": "#4d2b00",
+                        "primary-container": "#0ea5e9",
+                        "on-background": "#131b2e",
+                        "success": "#22c55e",
+                        "danger": "#ef4444",
+                        "on-surface-variant": "#3e4850",
+                        "warning": "#f59e0b",
+                        "surface-tint": "#006591",
+                        "on-secondary-container": "#54647a",
+                        "on-primary": "#ffffff",
+                        "border": "#e2e8f0",
+                        "surface-container-low": "#f2f3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#505f76",
+                        "outline-variant": "#bec8d2",
+                        "tertiary-fixed": "#ffdcbd",
+                        "inverse-primary": "#89ceff",
+                        "secondary-container": "#d0e1fb",
+                        "on-primary-container": "#003751",
+                        "surface-container": "#eaedff",
+                        "on-secondary-fixed": "#0b1c30",
+                        "inverse-surface": "#283044",
+                        "primary-fixed-dim": "#89ceff",
+                        "surface": "#ffffff",
+                        "on-surface": "#131b2e",
+                        "surface-variant": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#d3e4fe",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "surface-container-highest": "#dae2fd",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb86e",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "background": "#f8fafc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "margin-desktop": "32px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="h-screen w-[280px] fixed left-0 top-0 flex flex-col py-lg px-md border-r border-border bg-surface text-primary font-body-md text-body-md z-50">
+<!-- Header -->
+<div class="mb-xl px-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">GnoudCRM</h1>
+<p class="text-secondary text-label-sm uppercase tracking-widest mt-xs">Industrial Intelligence</p>
+</div>
+<!-- Tabs -->
+<div class="flex-1 flex flex-col gap-sm">
+<!-- Dashboard (Inactive) -->
+<a class="flex items-center gap-md p-md rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<!-- Máy móc (Inactive) -->
+<a class="flex items-center gap-md p-md rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">precision_manufacturing</span>
+<span class="font-label-md text-label-md">Máy móc</span>
+</a>
+<!-- Lịch trình (Active) -->
+<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="font-label-md text-label-md">Lịch trình</span>
+</a>
+<!-- Nhật ký bảo trì (Inactive) -->
+<a class="flex items-center gap-md p-md rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">clipboard_list</span>
+<span class="font-label-md text-label-md">Nhật ký bảo trì</span>
+</a>
+<!-- Cài đặt (Inactive) -->
+<a class="flex items-center gap-md p-md rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="font-label-md text-label-md">Cài đặt</span>
+</a>
+</div>
+<!-- Footer -->
+<div class="mt-auto pt-md border-t border-border">
+<a class="flex items-center gap-md p-md rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors" href="#">
+<span class="material-symbols-outlined text-[24px]">account_circle</span>
+<span class="font-label-md text-label-md">Hồ sơ cá nhân</span>
+</a>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 flex items-center justify-between px-gutter z-40 bg-surface/80 backdrop-blur-md border-b border-border shadow-sm">
+<div class="font-headline-sm text-headline-sm font-bold text-on-surface">GnoudCRM</div>
+<div class="flex items-center gap-sm">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant ml-sm overflow-hidden border border-border cursor-pointer hover:ring-2 ring-primary/30 transition-all">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a mature male industrial manager wearing a crisp light blue shirt and a subtle grey hard hat in the background, signaling a construction or heavy machinery environment. The lighting is studio-quality bright and even, casting soft shadows that highlight his experienced, confident expression. The background is a slightly blurred, bright modern office setting, perfectly matching the light-mode corporate aesthetic of a high-end SaaS platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7HPbDl0UV4_a1kSCHnFF4vCkuggWagEKupJK9GEyZ4Ua50t93K3fjtojBlseHvqISzCg53ZlaEU6R1t_J1iOw5AUIhkkOIdmAppepWszFa-lmAjpt7QDAiIV6vQeQAAhEfD8LyQWpjJ-KY9UZN34w8HO4dq1k4rnQVXdPprrh-lpbi9hIEhbQcUVpSftoqOb3kjv_alcx0xNXAnC1hPqk2u3w9zSpktTzRMRMTPipe0e2ul9nhwgb9bgmKFASgTK9NSQ8YttiRVQ"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] mt-16 p-margin-desktop min-h-[calc(100vh-64px)]">
+<!-- Breadcrumbs -->
+<nav class="mb-lg flex items-center gap-sm font-label-sm text-secondary">
+<a class="hover:text-primary transition-colors" href="#">Trang chủ</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Phân bổ &amp; Điều phối</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-bold">Tạo phiếu mới</span>
+</nav>
+<!-- Page Header -->
+<div class="mb-xl">
+<h2 class="font-display-lg text-display-lg text-on-surface mb-sm tracking-tight">Tạo phiếu điều phối mới</h2>
+<p class="font-body-lg text-body-lg text-secondary max-w-3xl">Nhập thông tin chi tiết để điều động thiết bị đến công trường hoặc trạm làm việc.</p>
+</div>
+<!-- Form Layout (Bento Grid Style) -->
+<form class="grid grid-cols-1 xl:grid-cols-12 gap-gutter items-start">
+<!-- Left Column: Primary Data (Span 8) -->
+<div class="xl:col-span-8 flex flex-col gap-gutter">
+<!-- Section 1: Thông tin chung -->
+<section class="bg-surface border border-border rounded-xl p-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+<header class="border-b border-border pb-md mb-lg flex items-center gap-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">info</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Thông tin chung</h3>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-gutter gap-y-lg">
+<!-- Mã phiếu (Read-only) -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Mã phiếu</label>
+<input class="w-full bg-surface-container-low border border-border rounded-lg px-md py-[10px] font-body-md text-secondary cursor-not-allowed outline-none focus:ring-0 shadow-inner" readonly="" type="text" value="DP-2023-AUTO"/>
+</div>
+<!-- Người điều phối (Read-only) -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Người điều phối</label>
+<input class="w-full bg-surface-container-low border border-border rounded-lg px-md py-[10px] font-body-md text-secondary cursor-not-allowed outline-none focus:ring-0 shadow-inner" readonly="" type="text" value="Nguyễn Văn Quản Lý"/>
+</div>
+<!-- Thiết bị (Select) -->
+<div class="md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm flex items-center gap-1">
+                                Thiết bị cần điều động <span class="text-danger">*</span>
+</label>
+<div class="relative group">
+<select class="w-full appearance-none bg-surface border border-border rounded-lg px-md py-[10px] font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none pr-xl transition-all hover:border-outline-variant">
+<option disabled="" selected="" value="">Chọn thiết bị từ danh sách khả dụng...</option>
+<option value="exc1">EXC-001 (Máy Xúc Đào Komatsu PC200) - Sẵn sàng</option>
+<option value="crn1">CRN-042 (Cần Cẩu Tháp Liebherr) - Sẵn sàng</option>
+<option value="trk1">TRK-105 (Xe Tải Ben Howo 4 Chân) - Đang bảo dưỡng</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Chi tiết điều phối -->
+<section class="bg-surface border border-border rounded-xl p-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+<header class="border-b border-border pb-md mb-lg flex items-center gap-sm">
+<div class="w-8 h-8 rounded-lg bg-tertiary-fixed flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">route</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Chi tiết điều phối</h3>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-gutter gap-y-lg">
+<!-- Điểm đến -->
+<div class="md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm flex items-center gap-1">
+                                Điểm đến / Công trường <span class="text-danger">*</span>
+</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[20px]">location_on</span>
+<input class="w-full bg-surface border border-border rounded-lg pl-[40px] pr-md py-[10px] font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all hover:border-outline-variant placeholder:text-outline-variant" placeholder="Nhập địa chỉ, tọa độ hoặc tên dự án..." type="text"/>
+</div>
+</div>
+<!-- Ngày bắt đầu -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-sm flex items-center gap-1">
+                                Ngày bắt đầu <span class="text-danger">*</span>
+</label>
+<input class="w-full bg-surface border border-border rounded-lg px-md py-[10px] font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all hover:border-outline-variant" type="date"/>
+</div>
+<!-- Ngày kết thúc -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Ngày kết thúc dự kiến</label>
+<input class="w-full bg-surface border border-border rounded-lg px-md py-[10px] font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all hover:border-outline-variant" type="date"/>
+</div>
+<!-- Trạng thái -->
+<div class="md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-sm flex items-center gap-1">
+                                Trạng thái ban đầu <span class="text-danger">*</span>
+</label>
+<div class="relative group">
+<select class="w-full appearance-none bg-surface border border-border rounded-lg px-md py-[10px] font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none pr-xl transition-all hover:border-outline-variant">
+<option value="pending">Đang xử lý (Chờ duyệt)</option>
+<option value="moving">Đang di chuyển (Khởi hành ngay)</option>
+<option value="scheduled">Đã lên lịch</option>
+</select>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none group-hover:text-primary transition-colors">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Secondary Data & Actions (Span 4) -->
+<div class="xl:col-span-4 flex flex-col gap-gutter">
+<!-- Section 3: Ghi chú -->
+<section class="bg-surface border border-border rounded-xl p-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+<header class="border-b border-border pb-md mb-lg flex items-center gap-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">sticky_note_2</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Ghi chú &amp; Hướng dẫn</h3>
+</header>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-sm flex items-center justify-between">
+<span>Nội dung ghi chú</span>
+<span class="text-label-sm text-secondary font-normal">Tùy chọn</span>
+</label>
+<textarea class="w-full bg-surface border border-border rounded-lg px-md py-sm font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-none transition-all hover:border-outline-variant placeholder:text-outline-variant" placeholder="Nhập hướng dẫn đặc biệt cho tài xế, lưu ý an toàn, hoặc thông tin liên hệ tại công trường..." rows="6"></textarea>
+</div>
+</section>
+<!-- Actions Card (Sticky) -->
+<section class="bg-surface-container-lowest border border-border rounded-xl p-lg shadow-sm flex flex-col gap-md sticky top-[104px]">
+<h4 class="font-label-md text-label-md text-on-surface mb-xs border-b border-border pb-sm">Thao tác</h4>
+<button class="w-full bg-primary hover:bg-on-primary-fixed-variant text-on-primary font-label-md text-label-md py-[12px] px-lg rounded-lg transition-colors flex justify-center items-center gap-sm shadow-sm group" type="submit">
+<span class="material-symbols-outlined text-[20px] group-hover:-translate-y-0.5 transition-transform">send</span>
+                        Tạo phiếu điều phối
+                    </button>
+<button class="w-full bg-surface border border-border hover:bg-surface-container hover:text-primary text-on-surface font-label-md text-label-md py-[12px] px-lg rounded-lg transition-colors flex justify-center items-center" type="button">
+                        Hủy bỏ
+                    </button>
+</section>
+</div>
+</form>
+</main>
+</body></html>

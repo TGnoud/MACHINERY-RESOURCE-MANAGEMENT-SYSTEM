@@ -15,8 +15,11 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return API metadata', () => {
+      expect(appController.getRoot()).toEqual({
+        service: 'GnoudCRM Machinery API',
+        health: '/api/health',
+      });
     });
   });
 });

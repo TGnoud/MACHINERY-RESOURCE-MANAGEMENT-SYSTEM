@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: machinery-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: CLIENT_ORIGIN
+        value: https://machinery-resource-management-syste.vercel.app
+      - key: MONGODB_URI
+        sync: false

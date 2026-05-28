@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quên mật khẩu - GnoudCRM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-container": "#0ea5e9",
+                    "surface-bright": "#faf8ff",
+                    "on-primary": "#ffffff",
+                    "surface": "#ffffff",
+                    "on-secondary-fixed": "#0b1c30",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb86e",
+                    "secondary-fixed-dim": "#b7c8e1",
+                    "border": "#e2e8f0",
+                    "warning": "#f59e0b",
+                    "on-tertiary-fixed-variant": "#693c00",
+                    "surface-container-high": "#e2e7ff",
+                    "danger": "#ef4444",
+                    "tertiary-fixed": "#ffdcbd",
+                    "on-tertiary-fixed": "#2c1600",
+                    "tertiary-container": "#de8712",
+                    "tertiary": "#8a5100",
+                    "surface-variant": "#dae2fd",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#3e4850",
+                    "inverse-on-surface": "#eef0ff",
+                    "secondary": "#505f76",
+                    "background": "#f8fafc",
+                    "outline": "#6e7881",
+                    "secondary-fixed": "#d3e4fe",
+                    "surface-dim": "#d2d9f4",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#004c6e",
+                    "primary-fixed-dim": "#89ceff",
+                    "outline-variant": "#bec8d2",
+                    "inverse-surface": "#283044",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#131b2e",
+                    "on-secondary-container": "#54647a",
+                    "on-primary-fixed": "#001e2f",
+                    "on-error-container": "#93000a",
+                    "success": "#22c55e",
+                    "primary": "#006591",
+                    "surface-tint": "#006591",
+                    "secondary-container": "#d0e1fb",
+                    "surface-container": "#eaedff",
+                    "error": "#ba1a1a",
+                    "primary-fixed": "#c9e6ff",
+                    "surface-container-highest": "#dae2fd",
+                    "on-tertiary-container": "#4d2b00",
+                    "on-secondary-fixed-variant": "#38485d",
+                    "on-background": "#131b2e",
+                    "surface-container-low": "#f2f3ff",
+                    "inverse-primary": "#89ceff",
+                    "on-primary-container": "#003751"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "base": "4px",
+                    "sm": "8px",
+                    "margin-desktop": "32px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "md": "16px",
+                    "margin-mobile": "16px"
+            },
+            "fontFamily": {
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg-mobile": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .auth-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .bg-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(14, 165, 233, 0.1) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="antialiased text-on-surface">
+<main class="min-h-screen flex">
+<!-- Left Side: Visual/Branding Section (Hidden on Mobile) -->
+<div class="hidden lg:flex lg:w-1/2 bg-[#0f172a] relative overflow-hidden items-center justify-center p-xl">
+<!-- Decorative Elements -->
+<div class="absolute inset-0 bg-pattern opacity-30"></div>
+<div class="absolute -top-24 -left-24 w-96 h-96 bg-primary-container/20 rounded-full blur-[120px]"></div>
+<div class="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/20 rounded-full blur-[120px]"></div>
+<div class="relative z-10 max-w-lg text-center">
+<div class="mb-lg inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+<span class="material-symbols-outlined text-[40px] text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-white mb-md tracking-tight">GnoudCRM</h1>
+<p class="font-body-lg text-body-lg text-secondary-fixed-dim leading-relaxed">
+                    Hệ thống quản lý tài nguyên và máy móc công nghiệp thông minh. Giải pháp tối ưu cho vận hành và bảo trì thiết bị quy mô lớn.
+                </p>
+<!-- Hero Image Placeholder for Context -->
+<div class="mt-xl rounded-xl overflow-hidden shadow-2xl border border-white/10 aspect-video relative group">
+<img alt="Industrial Intelligence" class="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" data-alt="A futuristic industrial control room with high-tech dashboard displays showing machinery metrics. The environment is sleek and modern with cool blue lighting, reflecting the GnoudCRM aesthetic. Advanced robotic arms are visible in a clean, brightly lit factory floor in the background, conveying a sense of precision and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD04pi2xmq26MueQ5u02TCk0EOHxVRZq8CRwRFwzxZvJ_4QoWrPvP6oyXJrpmJiVP6YvHO-q3UNZWlqu9mp_-S7Fy-cKGV52Q-VWlpnKnHgjyQiio4jYMEiJ4EvomVR2gxml_uj6dGtDuDs8NrhM-7QenYIEiOHe6MrvSA9Cj0UUG0Kp9o7l8XPf5RUs7Hgm3OphQzgwEKf2YDN-lQKQbeWQPwcWpyCQ5MwoYLjJV_749aCj0A3qJ87iiwkJT5MYrIp75ptUHoy22o"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-80"></div>
+</div>
+</div>
+</div>
+<!-- Right Side: Reset Password Form -->
+<div class="w-full lg:w-1/2 flex items-center justify-center p-md bg-background relative">
+<div class="max-w-md w-full">
+<!-- Mobile Logo -->
+<div class="lg:hidden flex items-center justify-center gap-sm mb-xl">
+<span class="material-symbols-outlined text-primary text-[32px]">precision_manufacturing</span>
+<span class="font-headline-sm text-headline-sm font-black text-primary tracking-tighter">GnoudCRM</span>
+</div>
+<div class="auth-card bg-surface p-xl rounded-xl shadow-sm border border-border">
+<div class="mb-xl">
+<div class="w-12 h-12 bg-primary-container/10 rounded-lg flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-primary-container">lock_reset</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Quên mật khẩu</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                            Nhập email tài khoản của bạn. Hệ thống sẽ gửi hướng dẫn khôi phục mật khẩu.
+                        </p>
+</div>
+<form class="space-y-lg" id="forgotPasswordForm" onsubmit="handleReset(event)">
+<!-- Email Field -->
+<div class="space-y-xs">
+<label class="font-label-md text-label-md text-on-surface-variant" for="email">Email</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px] transition-colors group-focus-within:text-primary">mail</span>
+<input class="w-full pl-11 pr-md py-3 rounded-lg border border-border bg-surface text-on-surface font-body-md focus:outline-none focus:ring-2 focus:ring-primary-container/50 focus:border-primary-container transition-all" id="email" name="email" placeholder="example@company.com" required="" type="email"/>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary-container hover:bg-[#0284c7] text-white font-label-md text-label-md py-4 rounded-lg shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-sm group" id="submitBtn" type="submit">
+<span>Gửi hướng dẫn khôi phục</span>
+<span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+<!-- Back to Login Link -->
+<div class="text-center pt-md">
+<a class="inline-flex items-center gap-xs font-label-md text-label-md text-primary hover:text-[#004c6e] transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">keyboard_backspace</span>
+                                Quay lại đăng nhập
+                            </a>
+</div>
+</form>
+<!-- Success State (Hidden by default) -->
+<div class="hidden text-center py-xl animate-in fade-in zoom-in duration-500" id="successState">
+<div class="w-20 h-20 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-lg">
+<span class="material-symbols-outlined text-success text-[40px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Đã gửi yêu cầu!</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-xl">
+                            Vui lòng kiểm tra hộp thư đến của bạn tại <span class="font-semibold text-on-surface" id="displayEmail"></span> để tiếp tục khôi phục mật khẩu.
+                        </p>
+<button class="font-label-md text-label-md text-primary hover:underline" onclick="location.reload()">
+                            Gửi lại email nếu bạn chưa nhận được
+                        </button>
+</div>
+</div>
+<!-- Footer Links -->
+<div class="mt-xl flex justify-between items-center px-md">
+<p class="font-label-sm text-label-sm text-outline">© 2024 GnoudCRM</p>
+<div class="flex gap-lg">
+<a class="font-label-sm text-label-sm text-outline hover:text-primary transition-colors" href="#">Trợ giúp</a>
+<a class="font-label-sm text-label-sm text-outline hover:text-primary transition-colors" href="#">Bảo mật</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        function handleReset(event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('email');
+            const submitBtn = document.getElementById('submitBtn');
+            const form = document.getElementById('forgotPasswordForm');
+            const successState = document.getElementById('successState');
+            const displayEmail = document.getElementById('displayEmail');
+
+            // Simulate Loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="ml-2">Đang xử lý...</span>
+            `;
+
+            setTimeout(() => {
+                displayEmail.innerText = emailInput.value;
+                form.classList.add('hidden');
+                successState.classList.remove('hidden');
+            }, 1500);
+        }
+
+        // Add some micro-interactions
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.parentElement.parentElement.classList.add('scale-[1.01]');
+            });
+            input.addEventListener('blur', () => {
+                input.parentElement.parentElement.classList.remove('scale-[1.01]');
+            });
+        });
+    </script>
+</body></html>

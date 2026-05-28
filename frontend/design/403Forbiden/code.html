@@ -1,0 +1,236 @@
+<!DOCTYPE html><html lang="vi"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>403 - Không có quyền truy cập | GnoudCRM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#ffb86e",
+                        "primary-fixed": "#c9e6ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001e2f",
+                        "surface-container": "#eaedff",
+                        "on-primary-container": "#003751",
+                        "surface": "#ffffff",
+                        "success": "#22c55e",
+                        "background": "#f8fafc",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "primary-fixed-dim": "#89ceff",
+                        "on-tertiary-fixed": "#2c1600",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#131b2e",
+                        "secondary": "#505f76",
+                        "inverse-surface": "#283044",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#3e4850",
+                        "on-primary-fixed-variant": "#004c6e",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#4d2b00",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-secondary-container": "#54647a",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface-variant": "#dae2fd",
+                        "inverse-primary": "#89ceff",
+                        "warning": "#f59e0b",
+                        "tertiary-container": "#de8712",
+                        "surface-container-highest": "#dae2fd",
+                        "danger": "#ef4444",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "tertiary-fixed": "#ffdcbd",
+                        "primary-container": "#0ea5e9",
+                        "outline": "#6e7881",
+                        "border": "#e2e8f0",
+                        "surface-container-low": "#f2f3ff",
+                        "surface-tint": "#006591",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#bec8d2",
+                        "inverse-on-surface": "#eef0ff",
+                        "tertiary": "#8a5100",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#d0e1fb",
+                        "primary": "#006591"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-x-hidden flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen w-[280px] fixed left-0 top-0 bg-surface border-r border-border py-lg px-md z-50">
+<div class="flex items-center gap-sm mb-xl">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">GnoudCRM</h1>
+<p class="font-label-sm text-label-sm text-secondary">Industrial Intelligence</p>
+</div>
+</div>
+<div class="flex-1 space-y-sm mt-md">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-container hover:text-primary transition-colors opacity-50 cursor-not-allowed pointer-events-none" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-container hover:text-primary transition-colors opacity-50 cursor-not-allowed pointer-events-none" href="#">
+<span class="material-symbols-outlined">precision_manufacturing</span>
+<span class="font-label-md text-label-md">Máy móc</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-container hover:text-primary transition-colors opacity-50 cursor-not-allowed pointer-events-none" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-label-md text-label-md">Lịch trình</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-container hover:text-primary transition-colors opacity-50 cursor-not-allowed pointer-events-none" href="#">
+<span class="material-symbols-outlined">clipboard_list</span>
+<span class="font-label-md text-label-md">Nhật ký bảo trì</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-container hover:text-primary transition-colors opacity-50 cursor-not-allowed pointer-events-none" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Cài đặt</span>
+</a>
+</div>
+<div class="mt-auto border-t border-border pt-md">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-container hover:text-primary transition-colors opacity-50 cursor-not-allowed pointer-events-none" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-md text-label-md">Hồ sơ cá nhân</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-[280px] flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-full md:w-[calc(100%-280px)] h-16 bg-surface/80 backdrop-blur-md border-b border-border shadow-sm flex items-center justify-between px-gutter z-40 transition-all">
+<div class="flex items-center gap-md md:hidden">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">GnoudCRM</span>
+</div>
+<div class="hidden md:flex items-center opacity-50 cursor-not-allowed pointer-events-none">
+<!-- Search would go here, disabled for 403 -->
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-lg text-secondary font-body-sm focus:outline-none" disabled="" placeholder="Search..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-transform opacity-50 cursor-not-allowed pointer-events-none" disabled="">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-transform opacity-50 cursor-not-allowed pointer-events-none" disabled="">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center ml-sm border border-border opacity-50">
+<span class="material-symbols-outlined text-on-surface-variant text-sm" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+</div>
+</header>
+<!-- Canvas (403 Content) -->
+<main class="flex-1 flex items-center justify-center p-gutter mt-16 relative overflow-hidden">
+<!-- Abstract background elements for depth -->
+<div class="absolute top-1/4 left-1/4 w-96 h-96 bg-error-container/30 rounded-full blur-3xl -z-10 mix-blend-multiply"></div>
+<div class="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-surface-variant/50 rounded-full blur-3xl -z-10 mix-blend-multiply"></div>
+<div class="w-full max-w-2xl relative">
+<!-- Bento style error card -->
+<div class="glass-panel rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-border p-xl flex flex-col md:flex-row items-center gap-xl">
+<!-- Icon / Illustration Area -->
+<div class="flex-shrink-0 relative">
+<div class="w-32 h-32 md:w-48 md:h-48 rounded-full bg-error-container/50 flex items-center justify-center relative z-10 border-4 border-surface shadow-sm">
+<span class="material-symbols-outlined text-[80px] md:text-[100px] text-error" style="font-variation-settings: 'FILL' 0, 'wght' 300;">block</span>
+</div>
+<!-- Decorative orbital rings -->
+<div class="absolute inset-0 border border-error/20 rounded-full scale-110 -z-0"></div>
+<div class="absolute inset-0 border border-border rounded-full scale-125 -z-0 border-dashed"></div>
+</div>
+<!-- Content Area -->
+<div class="flex flex-col items-center md:items-start text-center md:text-left">
+<div class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-error/10 border border-error/20 mb-md">
+<span class="font-label-sm text-label-sm text-error uppercase tracking-widest">Lỗi Hệ Thống</span>
+</div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-sm">
+                            403 - Không có quyền truy cập
+                        </h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-xl max-w-md">
+                            Bạn không có quyền truy cập trang này. Khu vực này yêu cầu cấp độ bảo mật cao hơn trong hệ thống quản lý máy móc. Vui lòng liên hệ quản trị viên nếu cần hỗ trợ.
+                        </p>
+<div class="flex flex-col sm:flex-row gap-md w-full sm:w-auto">
+<a class="inline-flex items-center justify-center gap-sm px-6 py-3 bg-primary-container text-on-primary font-label-md text-label-md rounded-lg hover:bg-primary-container/90 transition-colors shadow-sm whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                                Quay lại Dashboard
+                            </a>
+<a class="inline-flex items-center justify-center gap-sm px-6 py-3 bg-surface text-on-surface border border-border font-label-md text-label-md rounded-lg hover:bg-surface-container-low transition-colors shadow-sm whitespace-nowrap" href="#">
+<span class="material-symbols-outlined text-sm">support_agent</span>
+                                Liên hệ Hỗ trợ
+                            </a>
+</div>
+</div>
+</div>
+<!-- Technical Details (Collapsible styling, static for demo) -->
+<div class="mt-lg p-md bg-surface border border-border rounded-lg shadow-sm flex items-start gap-md opacity-70">
+<span class="material-symbols-outlined text-secondary mt-1">info</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Technical Reference</h4>
+<p class="font-body-sm text-body-sm text-secondary font-mono">ERR_FORBIDDEN_RESOURCE | ID: GCRM-403-8A9B2</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

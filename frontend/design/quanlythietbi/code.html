@@ -1,0 +1,437 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>GnoudCRM - Quản lý thiết bị</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed-dim": "#ffb86e",
+                        "primary-fixed": "#c9e6ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001e2f",
+                        "surface-container": "#eaedff",
+                        "on-primary-container": "#003751",
+                        "surface": "#ffffff",
+                        "success": "#22c55e",
+                        "background": "#f8fafc",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "primary-fixed-dim": "#89ceff",
+                        "on-tertiary-fixed": "#2c1600",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#131b2e",
+                        "secondary": "#505f76",
+                        "inverse-surface": "#283044",
+                        "on-secondary-fixed": "#0b1c30",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#3e4850",
+                        "on-primary-fixed-variant": "#004c6e",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#4d2b00",
+                        "secondary-fixed-dim": "#b7c8e1",
+                        "on-secondary-container": "#54647a",
+                        "on-secondary-fixed-variant": "#38485d",
+                        "surface-variant": "#dae2fd",
+                        "inverse-primary": "#89ceff",
+                        "warning": "#f59e0b",
+                        "tertiary-container": "#de8712",
+                        "surface-container-highest": "#dae2fd",
+                        "danger": "#ef4444",
+                        "secondary-fixed": "#d3e4fe",
+                        "on-background": "#131b2e",
+                        "surface-dim": "#d2d9f4",
+                        "tertiary-fixed": "#ffdcbd",
+                        "primary-container": "#0ea5e9",
+                        "outline": "#6e7881",
+                        "border": "#e2e8f0",
+                        "surface-container-low": "#f2f3ff",
+                        "surface-tint": "#006591",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#faf8ff",
+                        "outline-variant": "#bec8d2",
+                        "inverse-on-surface": "#eef0ff",
+                        "tertiary": "#8a5100",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#d0e1fb",
+                        "primary": "#006591"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "md": "16px",
+                        "lg": "24px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "xl": "32px",
+                        "margin-desktop": "32px"
+                    },
+                    fontFamily: {
+                        "body-md": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- Shared Component: SideNavBar -->
+<aside class="hidden md:flex flex-col h-screen w-[280px] fixed left-0 top-0 bg-surface border-r border-border py-lg px-md z-50">
+<!-- Brand Anchor -->
+<div class="mb-xl px-sm">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">GnoudCRM</h1>
+<p class="font-label-sm text-label-sm text-secondary uppercase tracking-widest mt-1">Industrial Intelligence</p>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 space-y-sm">
+<!-- Inactive -->
+<a class="flex items-center gap-md px-4 py-3 rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<!-- Active (Mapped to "Quản lý thiết bị" intent) -->
+<a class="flex items-center gap-md px-4 py-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-opacity opacity-80 font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined icon-fill">precision_manufacturing</span>
+                Máy móc
+            </a>
+<!-- Inactive -->
+<a class="flex items-center gap-md px-4 py-3 rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                Lịch trình
+            </a>
+<a class="flex items-center gap-md px-4 py-3 rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">clipboard_list</span>
+                Nhật ký bảo trì
+            </a>
+<a class="flex items-center gap-md px-4 py-3 rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Cài đặt
+            </a>
+</nav>
+<!-- Footer Tab -->
+<div class="mt-auto pt-lg border-t border-border">
+<a class="flex items-center gap-md px-4 py-3 rounded-lg text-secondary hover:text-primary hover:bg-surface-container transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+                Hồ sơ cá nhân
+            </a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col md:ml-[280px] w-full min-h-screen">
+<!-- Shared Component: TopAppBar -->
+<header class="fixed top-0 right-0 w-full md:w-[calc(100%-280px)] h-16 bg-surface/90 backdrop-blur-md flex items-center justify-between px-gutter z-40 border-b border-border shadow-sm">
+<!-- Search / Left Actions -->
+<div class="flex items-center gap-md flex-1">
+<div class="relative w-full max-w-md hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-transparent focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline transition-all" placeholder="Tìm kiếm thiết bị, serial..." type="text">
+</div>
+<!-- Mobile Menu Trigger -->
+<button class="md:hidden p-2 text-secondary hover:text-primary rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Mobile Brand -->
+<span class="md:hidden font-headline-sm text-headline-sm font-bold text-primary">GnoudCRM</span>
+</div>
+<!-- Trailing Icons & Profile -->
+<div class="flex items-center gap-sm">
+<button class="p-2 text-secondary hover:text-primary rounded-full hover:bg-surface-container-low transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full"></span>
+</button>
+<button class="p-2 text-secondary hover:text-primary rounded-full hover:bg-surface-container-low transition-colors hidden sm:block">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2 border border-border cursor-pointer">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a male engineer in his 30s with short brown hair and a subtle smile. He is wearing a dark navy collared shirt. The background is a blurred, high-tech industrial office environment with soft, cool lighting emphasizing a modern, corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbvG84ZOqZGOh2BrzQwABSZHXV_1ZjQ_itynQIsppHEzEaUCpnd81hs2Kc9SpprqAKvsNyoSjaOyzDV9O1Nly24C6owHJFQAc2kkPL1xKf2Lhq3-opj7CAocmt4-aRTXabuHZsog0z8L-iEChiW7AxROGGtwakZF2pAVanFritWMGdaKL9fjPn5Vy7Y8LrDMK9SVY0Es2WhLLg7Eh7QNyidRlXowA_bixGK2l3DWdfY58-NTzphRRJXEqxHd9ee-W1JZ4xGlQRQMI">
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<main class="flex-1 mt-16 p-margin-mobile md:p-margin-desktop overflow-x-hidden">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-lg">
+<div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Quản lý thiết bị</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">Danh sách máy móc và trạng thái vận hành hiện tại.</p>
+</div>
+<button class="flex items-center justify-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-lg font-label-md text-label-md hover:bg-surface-tint transition-colors shadow-sm whitespace-nowrap w-full sm:w-auto">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                    Thêm thiết bị
+                </button>
+</div>
+<!-- Filters & Data Density Area -->
+<div class="bg-surface border border-border rounded-xl shadow-sm flex flex-col overflow-hidden">
+<!-- Filter Bar -->
+<div class="border-b border-border p-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface-bright">
+<div class="flex flex-wrap items-center gap-2">
+<button class="px-4 py-2 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md font-semibold transition-colors">Tất cả</button>
+<button class="px-4 py-2 rounded-full bg-surface hover:bg-surface-container-low border border-border text-on-surface-variant font-label-md text-label-md transition-colors">Sẵn sàng</button>
+<button class="px-4 py-2 rounded-full bg-surface hover:bg-surface-container-low border border-border text-on-surface-variant font-label-md text-label-md transition-colors">Đang thuê</button>
+<button class="px-4 py-2 rounded-full bg-surface hover:bg-surface-container-low border border-border text-on-surface-variant font-label-md text-label-md transition-colors">Bảo trì</button>
+</div>
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<button class="p-2 border border-border rounded-lg text-secondary hover:bg-surface-container-low transition-colors flex items-center justify-center bg-surface w-full sm:w-auto">
+<span class="material-symbols-outlined text-[20px]">filter_list</span>
+</button>
+<button class="p-2 border border-border rounded-lg text-secondary hover:bg-surface-container-low transition-colors flex items-center justify-center bg-surface w-full sm:w-auto">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+<!-- Data Table (Skeleton State) -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead>
+<tr class="bg-surface-container-lowest border-b border-border">
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider w-16">Ảnh</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Tên thiết bị</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Số serial</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Danh mục</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Hãng sản xuất</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Năm mua</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Vị trí</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider">Trạng thái</th>
+<th class="py-3 px-4 font-label-sm text-label-sm text-secondary uppercase tracking-wider text-right">Hành động</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border">
+<!-- Skeleton Row 1 -->
+<tr class="animate-pulse bg-surface hover:bg-surface-bright transition-colors">
+<td class="py-3 px-4">
+<div class="w-10 h-10 bg-surface-dim rounded-md"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-3/4 mb-2"></div>
+<div class="h-3 bg-surface-variant rounded w-1/2"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-24"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-20"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-28"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-12"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-32"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-6 bg-surface-dim rounded-full w-20"></div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+</div>
+</td>
+</tr>
+<!-- Skeleton Row 2 -->
+<tr class="animate-pulse bg-surface hover:bg-surface-bright transition-colors">
+<td class="py-3 px-4">
+<div class="w-10 h-10 bg-surface-dim rounded-md"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-2/3 mb-2"></div>
+<div class="h-3 bg-surface-variant rounded w-1/3"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-20"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-24"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-20"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-12"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-24"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-6 bg-surface-dim rounded-full w-24"></div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+</div>
+</td>
+</tr>
+<!-- Skeleton Row 3 -->
+<tr class="animate-pulse bg-surface hover:bg-surface-bright transition-colors">
+<td class="py-3 px-4">
+<div class="w-10 h-10 bg-surface-dim rounded-md"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-4/5 mb-2"></div>
+<div class="h-3 bg-surface-variant rounded w-2/5"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-28"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-16"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-24"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-12"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-28"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-6 bg-surface-dim rounded-full w-16"></div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+</div>
+</td>
+</tr>
+<!-- Skeleton Row 4 -->
+<tr class="animate-pulse bg-surface hover:bg-surface-bright transition-colors">
+<td class="py-3 px-4">
+<div class="w-10 h-10 bg-surface-dim rounded-md"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-3/4 mb-2"></div>
+<div class="h-3 bg-surface-variant rounded w-1/2"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-24"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-20"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-28"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-12"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-32"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-6 bg-surface-dim rounded-full w-20"></div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+</div>
+</td>
+</tr>
+<!-- Skeleton Row 5 -->
+<tr class="animate-pulse bg-surface hover:bg-surface-bright transition-colors">
+<td class="py-3 px-4">
+<div class="w-10 h-10 bg-surface-dim rounded-md"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-3/4 mb-2"></div>
+<div class="h-3 bg-surface-variant rounded w-1/2"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-24"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-20"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-28"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-12"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-4 bg-surface-dim rounded w-32"></div>
+</td>
+<td class="py-3 px-4">
+<div class="h-6 bg-surface-dim rounded-full w-20"></div>
+</td>
+<td class="py-3 px-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+<div class="w-8 h-8 bg-surface-dim rounded-md"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer (Static) -->
+<div class="border-t border-border p-4 bg-surface-bright flex items-center justify-between">
+<p class="font-body-sm text-body-sm text-secondary">Đang hiển thị dữ liệu...</p>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded text-outline cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary-container text-on-primary-container font-label-sm text-label-sm flex items-center justify-center">1</button>
+<button class="w-8 h-8 rounded text-secondary hover:bg-surface-container-low font-label-sm text-label-sm flex items-center justify-center transition-colors">2</button>
+<button class="w-8 h-8 rounded text-secondary hover:bg-surface-container-low font-label-sm text-label-sm flex items-center justify-center transition-colors">3</button>
+<button class="p-1 rounded text-secondary hover:text-primary transition-colors hover:bg-surface-container-low">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

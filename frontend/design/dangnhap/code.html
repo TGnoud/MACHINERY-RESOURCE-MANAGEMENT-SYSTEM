@@ -1,0 +1,298 @@
+<!DOCTYPE html><html class="light" lang="vi"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Đăng nhập - GnoudCRM</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed-dim": "#ffb86e",
+                      "primary-fixed": "#c9e6ff",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#001e2f",
+                      "surface-container": "#eaedff",
+                      "on-primary-container": "#003751",
+                      "surface": "#ffffff",
+                      "success": "#22c55e",
+                      "background": "#f8fafc",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed-variant": "#693c00",
+                      "primary-fixed-dim": "#89ceff",
+                      "on-tertiary-fixed": "#2c1600",
+                      "on-secondary": "#ffffff",
+                      "on-surface": "#131b2e",
+                      "secondary": "#505f76",
+                      "inverse-surface": "#283044",
+                      "on-secondary-fixed": "#0b1c30",
+                      "surface-container-high": "#e2e7ff",
+                      "surface-container-lowest": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#3e4850",
+                      "on-primary-fixed-variant": "#004c6e",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#4d2b00",
+                      "secondary-fixed-dim": "#b7c8e1",
+                      "on-secondary-container": "#54647a",
+                      "on-secondary-fixed-variant": "#38485d",
+                      "surface-variant": "#dae2fd",
+                      "inverse-primary": "#89ceff",
+                      "warning": "#f59e0b",
+                      "tertiary-container": "#de8712",
+                      "surface-container-highest": "#dae2fd",
+                      "danger": "#ef4444",
+                      "secondary-fixed": "#d3e4fe",
+                      "on-background": "#131b2e",
+                      "surface-dim": "#d2d9f4",
+                      "tertiary-fixed": "#ffdcbd",
+                      "primary-container": "#0ea5e9",
+                      "outline": "#6e7881",
+                      "border": "#e2e8f0",
+                      "surface-container-low": "#f2f3ff",
+                      "surface-tint": "#006591",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#faf8ff",
+                      "outline-variant": "#bec8d2",
+                      "inverse-on-surface": "#eef0ff",
+                      "tertiary": "#8a5100",
+                      "on-tertiary": "#ffffff",
+                      "secondary-container": "#d0e1fb",
+                      "primary": "#006591"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "lg": "24px",
+                      "sm": "8px",
+                      "gutter": "24px",
+                      "base": "4px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "xl": "32px",
+                      "margin-desktop": "32px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "display-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen w-full flex overflow-hidden">
+<!-- AuthLayout: Left Panel (Branding & Illustration) -->
+<div class="hidden lg:flex w-1/2 relative bg-surface-container-high border-r border-border overflow-hidden flex-col justify-between">
+<!-- Background Image/Illustration -->
+<div class="absolute inset-0 w-full h-full bg-cover bg-center z-0" data-alt="A highly detailed and atmospheric photograph of a modern industrial manufacturing facility. The scene is illuminated by cool, high-tech cyan and stark white lighting, casting dynamic shadows over massive, precise robotic arms and gleaming metal machinery. The visual style is crisp, organized, and emphasizes a blend of heavy engineering and advanced software control, matching a professional corporate aesthetic. The mood conveys reliability, intelligence, and large-scale operational efficiency." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDib15EUfvML0MGYwYQ4vDqdqHFiiH2cQxMEh6GyO9nDbFDEI4ES8A66AW5KvUicaJ0gABVabnHk3gyflKhbGAqQ5qZoJPzZHeCAUBxokVQZ886XUSardydmwAR70B_jXKzxPmv7NpcAAs_vjvOMBTIXyb80T7eydA63bMelSL_GE88PkldgxO5NzdUsBAmh4G0WJcroYs6lQWDU9emuB9Hf7N3qdFa8oxCp1uu6QNYoV_Xu9jZ8x2lSEKMYSAOknLBvAb6LSuC57I');">
+<!-- Overlay to ensure text readability -->
+<div class="absolute inset-0 bg-on-primary-fixed/80 backdrop-blur-sm z-10"></div>
+</div>
+<!-- Content Overlay -->
+<div class="relative z-20 flex flex-col h-full justify-between p-xl">
+<!-- Brand -->
+<div class="mt-lg">
+<h1 class="font-display-lg text-display-lg text-primary-fixed font-bold tracking-tight">GnoudCRM</h1>
+<p class="font-headline-sm text-headline-sm text-surface-container mt-sm max-w-[80%] font-medium leading-relaxed">
+                    Hệ thống quản lý thiết bị, điều phối và bảo trì máy móc
+                </p>
+</div>
+<!-- Visual Graphic / decorative element -->
+<div class="mb-lg">
+<div class="w-24 h-1 bg-primary rounded-full mb-md opacity-80"></div>
+<div class="flex items-center gap-sm text-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-[20px]" data-icon="precision_manufacturing">precision_manufacturing</span>
+<span>Industrial Intelligence</span>
+</div>
+</div>
+</div>
+</div>
+<!-- AuthLayout: Right Panel (Login Form) -->
+<div class="w-full lg:w-1/2 flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-surface-container-lowest">
+<!-- Mobile Logo (hidden on desktop) -->
+<div class="absolute top-margin-mobile left-margin-mobile lg:hidden">
+<h1 class="font-headline-md text-headline-md text-primary font-bold">GnoudCRM</h1>
+</div>
+<!-- Login Card -->
+<div class="w-full max-w-[440px] bg-surface rounded-xl border border-border shadow-[0px_4px_6px_-1px_rgba(15,23,42,0.1)] p-xl flex flex-col gap-lg">
+<!-- Header -->
+<div class="flex flex-col gap-xs text-center lg:text-left">
+<h2 class="font-display-lg-mobile text-display-lg-mobile lg:font-display-lg lg:text-display-lg font-bold text-on-surface">Đăng nhập</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Truy cập vào hệ thống điều phối của bạn.</p>
+</div>
+<!-- Form -->
+<form class="flex flex-col gap-md" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="flex flex-col gap-base">
+<label class="font-label-md text-label-md text-on-surface" for="email">Email</label>
+<input class="w-full px-md py-sm bg-surface border border-border rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline-variant" id="email" placeholder="ví dụ: admin@gnoudcrm.vn" type="email">
+</div>
+<!-- Password Field (with validation error example) -->
+<div class="flex flex-col gap-base">
+<label class="font-label-md text-label-md text-on-surface" for="password">Mật khẩu</label>
+<div class="relative w-full">
+<input class="w-full pl-md pr-xl py-sm bg-surface border border-error rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:border-error focus:ring-2 focus:ring-error/20 transition-all" id="password" type="password" value="invalidpass">
+<button class="absolute right-sm top-1/2 -translate-y-1/2 p-sm text-outline-variant hover:text-on-surface transition-colors" onclick="togglePassword()" type="button">
+<span class="material-symbols-outlined" data-icon="visibility_off" id="toggle-icon">visibility_off</span>
+</button>
+</div>
+<!-- Validation Error Message -->
+<p class="font-body-sm text-body-sm text-error flex items-center gap-xs mt-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="error">error</span>
+                        Mật khẩu không chính xác hoặc tài khoản đã bị khóa.
+                    </p>
+</div>
+<!-- Options Row -->
+<div class="flex items-center justify-between mt-sm">
+<label class="flex items-center gap-sm cursor-pointer group">
+<input class="w-4 h-4 rounded border-border text-primary focus:ring-primary/20 focus:ring-offset-0 bg-surface checked:bg-primary transition-colors cursor-pointer" type="checkbox">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Ghi nhớ đăng nhập</span>
+</label>
+<a class="font-label-md text-label-md text-primary hover:text-primary-container hover:underline transition-all" href="#">Quên mật khẩu?</a>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary hover:bg-surface-tint text-on-primary font-label-md text-label-md font-semibold py-md px-lg rounded-lg shadow-sm hover:shadow-md transition-all mt-sm flex justify-center items-center gap-sm" type="submit">
+                    Đăng nhập
+                    <span class="material-symbols-outlined text-[20px]" data-icon="login">login</span>
+</button>
+</form>
+<!-- Register Link -->
+<div class="text-center mt-sm pt-lg border-t border-border">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Chưa có tài khoản? <a class="font-label-md text-label-md text-primary hover:underline font-semibold ml-xs" href="#">Đăng ký</a>
+</p>
+</div>
+</div>
+</div>
+<!-- Script for password toggle interaction -->
+<script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggle-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.textContent = 'visibility';
+                toggleIcon.setAttribute('data-icon', 'visibility');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.textContent = 'visibility_off';
+                toggleIcon.setAttribute('data-icon', 'visibility_off');
+            }
+        }
+    </script>
+</body></html>
