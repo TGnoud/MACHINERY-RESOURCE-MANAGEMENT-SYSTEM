@@ -6,8 +6,6 @@ import {
   Download,
   Eye,
   Filter,
-  MoreVertical,
-  Pencil,
   Plus,
   Search,
   Loader2,
@@ -54,6 +52,9 @@ export default function MachineryPage() {
   const [activeFilter, setActiveFilter] = useState<MachineryStatusType | "">("");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showSortPanel, setShowSortPanel] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   // Debounce search input
   useEffect(() => {
@@ -73,6 +74,8 @@ export default function MachineryPage() {
         limit: 10,
         ...(activeFilter ? { status: activeFilter } : {}),
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
+        sort: sortBy,
+        order: sortOrder,
       });
       setMachineries(res.data);
       setTotalPages(res.totalPages);
@@ -82,7 +85,61 @@ export default function MachineryPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, activeFilter, debouncedSearch]);
+  }, [currentPage, activeFilter, debouncedSearch, sortBy, sortOrder]);
+
+  const handleDownloadCSV = () => {
+    const headers = [
+      "Tên thiết bị",
+      "Số serial",
+      "Danh mục",
+      "Hãng sản xuất",
+      "Năm mua",
+      "Giờ hoạt động",
+      "Tiêu hao nhiên liệu (L/h)",
+      "Vị trí",
+      "Trạng thái",
+    ];
+
+    const rows = machineries.map((item) => {
+      const statusLabel =
+        item.status === "AVAILABLE"
+          ? "Sẵn sàng"
+          : item.status === "RENTED"
+          ? "Đang thuê"
+          : item.status === "MAINTENANCE"
+          ? "Bảo trì"
+          : item.status;
+
+      return [
+        `"${(item.name || "").replace(/"/g, '""')}"`,
+        `"${(item.serialNumber || "").replace(/"/g, '""')}"`,
+        `"${(item.category?.name || "").replace(/"/g, '""')}"`,
+        `"${(item.manufacturer || "").replace(/"/g, '""')}"`,
+        item.purchaseYear !== undefined && item.purchaseYear !== null ? String(item.purchaseYear) : "",
+        String(item.operatingHours || 0),
+        String(item.fuelConsumption || 0),
+        `"${(item.location || "").replace(/"/g, '""')}"`,
+        `"${statusLabel}"`,
+      ];
+    });
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob(["\uFEFF" + csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `danh_sach_thiet_bi_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     fetchData();
@@ -154,14 +211,70 @@ export default function MachineryPage() {
               ))}
             </div>
             <div className="flex gap-2">
-              <button className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50">
+              <button
+                type="button"
+                onClick={() => setShowSortPanel(!showSortPanel)}
+                className={[
+                  "grid size-10 place-items-center rounded-lg border transition",
+                  showSortPanel
+                    ? "border-sky-500 bg-sky-50 text-sky-700 font-bold"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+                ].join(" ")}
+              >
                 <Filter className="size-4" />
               </button>
-              <button className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50">
+              <button
+                type="button"
+                onClick={handleDownloadCSV}
+                className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+              >
                 <Download className="size-4" />
               </button>
             </div>
           </div>
+
+          {/* Sort options panel */}
+          {showSortPanel && (
+            <div className="flex flex-wrap items-center gap-3 border-b border-slate-200 bg-slate-50/50 px-5 py-3 text-sm">
+              <span className="font-semibold text-slate-500">Sắp xếp theo:</span>
+              {[
+                { label: "Ngày tạo", field: "createdAt" },
+                { label: "Giờ hoạt động", field: "operatingHours" },
+                { label: "Năm mua", field: "purchaseYear" },
+                { label: "Tiêu hao", field: "fuelConsumption" },
+              ].map((option) => {
+                const isSelected = sortBy === option.field;
+                return (
+                  <button
+                    key={option.field}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+                      } else {
+                        setSortBy(option.field);
+                        setSortOrder("desc");
+                      }
+                      setCurrentPage(1);
+                    }}
+                    className={[
+                      "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-bold transition border",
+                      isSelected
+                        ? "bg-sky-50 border-sky-200 text-sky-700"
+                        : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50",
+                    ].join(" ")}
+                  >
+                    {option.label}
+                    {isSelected && (
+                      <span className="text-[10px]">
+                        {sortOrder === "asc" ? "▲" : "▼"}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Error state */}
           {error && (
@@ -262,14 +375,6 @@ export default function MachineryPage() {
                                 >
                                   <Eye className="size-4" />
                                 </Link>
-                                {user?.role === "ADMIN" && (
-                                  <button className="grid size-8 place-items-center rounded-md transition hover:bg-slate-100 hover:text-sky-700">
-                                    <Pencil className="size-4" />
-                                  </button>
-                                )}
-                                <button className="grid size-8 place-items-center rounded-md transition hover:bg-slate-100">
-                                  <MoreVertical className="size-4" />
-                                </button>
                               </div>
                             </td>
                           </tr>

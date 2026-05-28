@@ -5,12 +5,18 @@ import { CreateMachineryDto } from './dto/create-machinery.dto';
 import { QueryMachineryDto } from './dto/query-machinery.dto';
 import { UpdateMachineryDto } from './dto/update-machinery.dto';
 import { Machinery, MachineryDocument } from './schemas/machinery.schema';
+import { Assignment, AssignmentDocument } from '../assignments/schemas/assignment.schema';
+import { MaintenanceLog, MaintenanceLogDocument } from '../maintenance/schemas/maintenance-log.schema';
 
 @Injectable()
 export class MachineriesService {
   constructor(
     @InjectModel(Machinery.name)
     private readonly machineryModel: Model<MachineryDocument>,
+    @InjectModel(Assignment.name)
+    private readonly assignmentModel: Model<AssignmentDocument>,
+    @InjectModel(MaintenanceLog.name)
+    private readonly maintenanceLogModel: Model<MaintenanceLogDocument>,
   ) {}
 
   async findAll(query: QueryMachineryDto) {
@@ -68,6 +74,22 @@ export class MachineriesService {
     }
 
     return machinery;
+  }
+
+  async findMaintenance(id: string) {
+    return this.maintenanceLogModel
+      .find({ machinery: id })
+      .populate('technician', 'fullName email')
+      .sort({ createdAt: -1 })
+      .lean();
+  }
+
+  async findAssignments(id: string) {
+    return this.assignmentModel
+      .find({ machinery: id })
+      .populate('dispatcher', 'fullName email')
+      .sort({ startDate: -1 })
+      .lean();
   }
 
   async create(dto: CreateMachineryDto) {

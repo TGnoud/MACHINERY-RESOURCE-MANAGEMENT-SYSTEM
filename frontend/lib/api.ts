@@ -148,7 +148,7 @@ export async function apiFetch<T>(
   const { auth, ...requestInit } = init ?? {};
   const headers = new Headers(requestInit.headers);
 
-  if (!headers.has("Content-Type")) {
+  if (!(requestInit.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
@@ -288,6 +288,7 @@ export type MachineryItem = {
   category?: CategoryItem | null;
   specs: Record<string, unknown>;
   location?: string;
+  imageUrl?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -351,6 +352,16 @@ export const machineryApi = {
       auth: true,
     });
   },
+  getMaintenance(id: string) {
+    return apiFetch<any[]>(`/api/v1/machineries/${id}/maintenance`, {
+      auth: true,
+    });
+  },
+  getAssignments(id: string) {
+    return apiFetch<any[]>(`/api/v1/machineries/${id}/assignments`, {
+      auth: true,
+    });
+  },
 };
 
 export const categoryApi = {
@@ -360,3 +371,13 @@ export const categoryApi = {
     });
   },
 };
+
+export function uploadImage(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiFetch<{ url: string }>("/api/v1/upload", {
+    method: "POST",
+    body: formData,
+    auth: true,
+  });
+}

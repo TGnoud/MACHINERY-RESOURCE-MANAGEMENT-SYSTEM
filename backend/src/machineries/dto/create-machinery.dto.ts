@@ -52,4 +52,8 @@ export class CreateMachineryDto {
   @IsOptional()
   @IsString()
   location?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }

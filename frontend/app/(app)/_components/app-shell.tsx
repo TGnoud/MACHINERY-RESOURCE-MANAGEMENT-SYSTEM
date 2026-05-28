@@ -58,7 +58,7 @@ const pageMeta: Record<
   { search?: string; breadcrumbs?: string[]; disabled?: boolean; hideSearch?: boolean }
 > = {
   "/dashboard": { hideSearch: true },
-  "/machinery": { search: "Tìm kiếm thiết bị, serial…" },
+  "/machinery": { breadcrumbs: ["Máy móc"] },
   "/machinery/new": { breadcrumbs: ["Máy móc", "Thêm/Sửa thiết bị"] },
   "/assignments": { breadcrumbs: ["Lịch trình", "Phân bổ & Điều phối"] },
   "/assignments/new": { breadcrumbs: ["Lịch trình", "Tạo phiếu điều phối mới"] },
@@ -388,6 +388,13 @@ function SearchBox({
   );
 }
 
+const BREADCRUMB_MAP: Record<string, string> = {
+  "Máy móc": "/machinery",
+  "Lịch trình": "/assignments",
+  "Nhật ký bảo trì": "/maintenance",
+  "Cài đặt": "/profile",
+};
+
 function Breadcrumbs({
   items,
   disabled,
@@ -395,6 +402,8 @@ function Breadcrumbs({
   items: string[];
   disabled?: boolean;
 }) {
+  const homeLink = disabled ? "#" : "/dashboard";
+
   return (
     <div
       className={[
@@ -402,15 +411,28 @@ function Breadcrumbs({
         disabled ? "opacity-50" : "",
       ].join(" ")}
     >
-      <Home aria-hidden="true" className="size-4" />
-      {items.map((item, index) => (
-        <span className="flex items-center gap-2" key={item}>
-          <ChevronRight aria-hidden="true" className="size-4 text-slate-400" />
-          <span className={index === items.length - 1 ? "text-sky-700" : ""}>
-            {item}
+      <Link href={homeLink} className="hover:text-sky-700 transition">
+        <Home aria-hidden="true" className="size-4" />
+      </Link>
+      {items.map((item, index) => {
+        const isLast = index === items.length - 1;
+        const href = BREADCRUMB_MAP[item];
+
+        return (
+          <span className="flex items-center gap-2" key={item}>
+            <ChevronRight aria-hidden="true" className="size-4 text-slate-400" />
+            {isLast || !href || disabled ? (
+              <span className={isLast ? "text-sky-700" : ""}>
+                {item}
+              </span>
+            ) : (
+              <Link href={href} className="hover:text-sky-700 transition">
+                {item}
+              </Link>
+            )}
           </span>
-        </span>
-      ))}
+        );
+      })}
     </div>
   );
 }

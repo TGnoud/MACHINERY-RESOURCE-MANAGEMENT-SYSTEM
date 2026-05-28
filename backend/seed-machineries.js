@@ -225,6 +225,51 @@ const MODELS = {
   ],
 };
 
+const CATEGORY_IMAGES = {
+  'Máy xúc': [
+    'https://images.unsplash.com/photo-1579294800821-694d95e86143?q=80&w=600',
+    'https://images.unsplash.com/photo-1586191582159-6d5be9c23b5d?q=80&w=600',
+    'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=600',
+    'https://images.unsplash.com/photo-1580901368919-7738efb0f87e?q=80&w=600',
+  ],
+  'Cần cẩu': [
+    'https://images.unsplash.com/photo-1542385151-efd9000785a0?q=80&w=600',
+    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=600',
+    'https://images.unsplash.com/photo-1495516387989-a5f73bc8839d?q=80&w=600',
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=600',
+  ],
+  'Xe nâng': [
+    'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=600',
+    'https://images.unsplash.com/photo-1605787020600-b9ebd5df1d07?q=80&w=600',
+    'https://images.unsplash.com/photo-1578575437130-527eed3abbec?q=80&w=600',
+    'https://images.unsplash.com/photo-1533722744747-d5d1c25f4cc0?q=80&w=600',
+  ],
+  'Xe tải ben': [
+    'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?q=80&w=600',
+    'https://images.unsplash.com/photo-1516575150278-77136aed6920?q=80&w=600',
+    'https://images.unsplash.com/photo-1599740831627-72be1c210d32?q=80&w=600',
+    'https://images.unsplash.com/photo-1616422285623-13ff0162193c?q=80&w=600',
+  ],
+  'Máy phát điện': [
+    'https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?q=80&w=600',
+    'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600',
+    'https://images.unsplash.com/photo-1585713181935-d5f622cc2415?q=80&w=600',
+    'https://images.unsplash.com/photo-1618042164219-62c820f10723?q=80&w=600',
+  ],
+  'Máy trộn bê tông': [
+    'https://images.unsplash.com/photo-1534710961216-75c88202f43e?q=80&w=600',
+    'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=600',
+    'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?q=80&w=600',
+    'https://images.unsplash.com/photo-1590069261209-f8e9b8642343?q=80&w=600',
+  ],
+  'Máy ép cọc': [
+    'https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=600',
+    'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600',
+    'https://images.unsplash.com/photo-1508450859948-4e04fabaa4e1?q=80&w=600',
+    'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=600',
+  ],
+};
+
 // ── spec generators ────────────────────────────────────────────────────────
 // Each function receives a PRNG value (0..1) per field so specs vary.
 
@@ -388,6 +433,9 @@ async function main() {
     const specGen = SPEC_GENERATORS[categoryName];
     const specs = specGen(rng4, rng5, rng6, rng7);
 
+    const imgList = CATEGORY_IMAGES[categoryName];
+    const imageUrl = imgList[i % imgList.length];
+
     const doc = {
       name,
       manufacturer,
@@ -398,6 +446,7 @@ async function main() {
       category: categoryIdByName[categoryName],
       specs,
       location,
+      imageUrl,
     };
 
     const result = await machineriesCol.updateOne(

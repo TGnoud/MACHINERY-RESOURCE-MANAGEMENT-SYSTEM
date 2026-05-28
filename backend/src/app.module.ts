@@ -20,6 +20,7 @@ import {
 } from './maintenance/schemas/maintenance-log.schema';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { AppService } from './app.service';
     DashboardModule,
     MachineriesModule,
     CategoriesModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

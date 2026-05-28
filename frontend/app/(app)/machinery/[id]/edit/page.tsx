@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   ImagePlus,
@@ -14,7 +14,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { Card, PagePad, PrimaryButton } from "../../_components/ui";
+import { Card, PagePad, PrimaryButton, SecondaryButton } from "../../../_components/ui";
 import {
   getStoredUser,
   machineryApi,
@@ -30,8 +30,11 @@ const STATUS_OPTIONS: { label: string; value: MachineryStatus }[] = [
   { label: "Bảo trì", value: "MAINTENANCE" },
 ];
 
-export default function MachineryFormPage() {
+export default function MachineryEditPage() {
+  const params = useParams();
   const router = useRouter();
+  const id = params.id as string;
+
   const [isAllowed] = useState(() => {
     const user = getStoredUser();
     return !user || user.role === "ADMIN";
@@ -56,6 +59,7 @@ export default function MachineryFormPage() {
   ]);
 
   // UI states
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,18 +70,55 @@ export default function MachineryFormPage() {
     }
   }, [isAllowed, router]);
 
-  // Fetch categories on mount
+  // Fetch data on mount
   useEffect(() => {
-    async function loadCategories() {
+    async function loadData() {
+      setLoading(true);
+      setError(null);
       try {
-        const data = await categoryApi.getAll();
-        setCategories(data);
-      } catch {
-        // Silently fail - user can still submit without category
+        const [categoriesData, machineryData] = await Promise.all([
+          categoryApi.getAll(),
+          machineryApi.getById(id),
+        ]);
+
+        setCategories(categoriesData);
+
+        // Populate fields
+        setName(machineryData.name || "");
+        setSerialNumber(machineryData.serialNumber || "");
+        setManufacturer(machineryData.manufacturer || "");
+        setPurchaseYear(machineryData.purchaseYear ? String(machineryData.purchaseYear) : "");
+        setOperatingHours(machineryData.operatingHours ? String(machineryData.operatingHours) : "0");
+        setFuelConsumption(machineryData.fuelConsumption ? String(machineryData.fuelConsumption) : "0");
+        setLocation(machineryData.location || "");
+        setStatus(machineryData.status || "AVAILABLE");
+        setImageUrl(machineryData.imageUrl || "");
+        
+        if (machineryData.category) {
+          setCategoryId(typeof machineryData.category === "object" ? machineryData.category._id : machineryData.category);
+        }
+
+        // Set specs array
+        if (machineryData.specs) {
+          const specList = Object.entries(machineryData.specs).map(([k, v]) => ({
+            key: k,
+            value: String(v),
+          }));
+          setSpecs(specList.length > 0 ? specList : [{ key: "", value: "" }]);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu thiết bị.",
+        );
+      } finally {
+        setLoading(false);
       }
     }
-    loadCategories();
-  }, []);
+
+    if (isAllowed) {
+      loadData();
+    }
+  }, [id, isAllowed]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -146,14 +187,14 @@ export default function MachineryFormPage() {
     if (manufacturer.trim()) payload.manufacturer = manufacturer.trim();
     if (purchaseYear) payload.purchaseYear = Number(purchaseYear);
     if (location.trim()) payload.location = location.trim();
-    if (categoryId) payload.category = categoryId;
+    payload.category = categoryId || null;
 
     try {
-      await machineryApi.create(payload);
-      router.push("/machinery");
+      await machineryApi.update(id, payload);
+      router.push(`/machinery/${id}`);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Đã xảy ra lỗi khi lưu thiết bị.",
+        err instanceof Error ? err.message : "Đã xảy ra lỗi khi cập nhật thiết bị.",
       );
       setSaving(false);
     }
@@ -163,23 +204,32 @@ export default function MachineryFormPage() {
     return <div className="min-h-screen bg-slate-50" />;
   }
 
+  if (loading) {
+    return (
+      <PagePad>
+        <div className="flex min-h-[50vh] items-center justify-center">
+          <Loader2 className="size-8 animate-spin text-sky-700" />
+        </div>
+      </PagePad>
+    );
+  }
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
-              Thêm/Sửa thiết bị
+              Chỉnh sửa thiết bị
             </h1>
             <p className="mt-2 text-slate-600">
-              Nhập thông tin chi tiết cho thiết bị công nghiệp mới hoặc cập
-              nhật thông tin hiện có.
+              Cập nhật thông tin chi tiết và thông số kỹ thuật cho thiết bị &ldquo;{name}&rdquo;.
             </p>
           </div>
           <div className="flex gap-3">
             <Link
               className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-200 bg-white px-6 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
-              href="/machinery"
+              href={`/machinery/${id}`}
             >
               Hủy
             </Link>

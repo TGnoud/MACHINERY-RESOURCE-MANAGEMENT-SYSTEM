@@ -43,6 +43,9 @@ export class Machinery {
 
   @Prop({ trim: true })
   location?: string;
+
+  @Prop({ trim: true })
+  imageUrl?: string;
 }
 
 export type MachineryDocument = HydratedDocument<Machinery>;

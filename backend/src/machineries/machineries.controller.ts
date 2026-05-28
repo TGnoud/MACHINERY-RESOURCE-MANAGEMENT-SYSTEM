@@ -33,6 +33,16 @@ export class MachineriesController {
     return this.machineriesService.findOne(id);
   }
 
+  @Get(':id/maintenance')
+  findMaintenance(@Param('id') id: string) {
+    return this.machineriesService.findMaintenance(id);
+  }
+
+  @Get(':id/assignments')
+  findAssignments(@Param('id') id: string) {
+    return this.machineriesService.findAssignments(id);
+  }
+
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.Admin)
