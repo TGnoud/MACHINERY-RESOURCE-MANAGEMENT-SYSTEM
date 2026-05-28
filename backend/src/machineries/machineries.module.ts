@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
 import { Category, CategorySchema } from '../categories/schemas/category.schema';
 import { Machinery, MachinerySchema } from './schemas/machinery.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
 import { MachineriesController } from './machineries.controller';
 import { MachineriesService } from './machineries.service';
 
@@ -12,6 +13,7 @@ import { MachineriesService } from './machineries.service';
     MongooseModule.forFeature([
       { name: Machinery.name, schema: MachinerySchema },
       { name: Category.name, schema: CategorySchema },
+      { name: User.name, schema: UserSchema },
     ]),
   ],
   controllers: [MachineriesController],
