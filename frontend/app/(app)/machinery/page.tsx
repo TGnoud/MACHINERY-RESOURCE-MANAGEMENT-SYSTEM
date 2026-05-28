@@ -9,6 +9,8 @@ import {
   Plus,
   Search,
   Loader2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import { Card, PagePad } from "../_components/ui";
@@ -41,6 +43,21 @@ const FILTERS: { label: string; value: MachineryStatusType | "" }[] = [
   { label: "Bảo trì", value: "MAINTENANCE" },
 ];
 
+const getCategoryImage = (item: MachineryItem) => {
+  if (item.imageUrl) return item.imageUrl;
+  const catName = (item.category?.name || "").toLowerCase();
+  if (catName.includes("xúc") || catName.includes("cuốc") || catName.includes("đào")) {
+    return "https://images.unsplash.com/photo-1579684389782-64d84b5e9053?auto=format&fit=crop&q=80&w=200";
+  }
+  if (catName.includes("cẩu") || catName.includes("nâng")) {
+    return "https://images.unsplash.com/photo-1542362567-b07eac79094d?auto=format&fit=crop&q=80&w=200";
+  }
+  if (catName.includes("ủi") || catName.includes("lu")) {
+    return "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=200";
+  }
+  return "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=200";
+};
+
 export default function MachineryPage() {
   const [user] = useState(() => getStoredUser());
   const [machineries, setMachineries] = useState<MachineryItem[]>([]);
@@ -55,6 +72,11 @@ export default function MachineryPage() {
   const [showSortPanel, setShowSortPanel] = useState(false);
   const [sortBy, setSortBy] = useState<string>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [jumpPage, setJumpPage] = useState("");
+
+  useEffect(() => {
+    setJumpPage(currentPage.toString());
+  }, [currentPage]);
 
   // Debounce search input
   useEffect(() => {
@@ -296,7 +318,7 @@ export default function MachineryPage() {
               <table className="w-full min-w-[1050px] text-left">
                 <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
                   <tr>
-                    <th className="px-4 py-4">#</th>
+                    <th className="px-4 py-4">Ảnh</th>
                     <th className="px-4 py-4">Tên thiết bị</th>
                     <th className="px-4 py-4">Số serial</th>
                     <th className="px-4 py-4">Danh mục</th>
@@ -330,9 +352,11 @@ export default function MachineryPage() {
                             key={item._id}
                           >
                             <td className="px-4 py-4">
-                              <div className="grid size-12 place-items-center rounded-lg bg-sky-50 text-sky-700">
-                                {startIndex + index}
-                              </div>
+                              <div
+                                className="size-12 rounded-xl bg-slate-200 bg-cover bg-center border border-slate-100 shadow-sm transition hover:scale-105 duration-200"
+                                style={{ backgroundImage: `url(${getCategoryImage(item)})` }}
+                                title={`${item.name} image`}
+                              />
                             </td>
                             <td className="px-4 py-4">
                               <Link
@@ -362,7 +386,7 @@ export default function MachineryPage() {
                             </td>
                             <td className="px-4 py-4">
                               <span
-                                className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${statusInfo.className}`}
+                                className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold whitespace-nowrap ${statusInfo.className}`}
                               >
                                 {statusInfo.label}
                               </span>
@@ -399,28 +423,104 @@ export default function MachineryPage() {
 
           {/* Pagination */}
           {!error && !loading && machineries.length > 0 && (
-            <div className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-slate-600">
                 Hiển thị {startIndex} đến {endIndex} trong số {total} kết quả
               </p>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      className={[
-                        "grid size-9 place-items-center rounded text-sm font-semibold",
-                        page === currentPage
-                          ? "bg-sky-500 text-white"
-                          : "text-slate-600 hover:bg-white",
-                      ].join(" ")}
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      type="button"
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
+              
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Page range buttons */}
+                <div className="flex items-center gap-1">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                    className="grid size-9 place-items-center rounded border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none"
+                    type="button"
+                    title="Trang trước"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+                  
+                  {(() => {
+                    const pages: (number | string)[] = [];
+                    const maxVisible = 5;
+                    
+                    if (totalPages <= maxVisible) {
+                      for (let i = 1; i <= totalPages; i++) {
+                        pages.push(i);
+                      }
+                    } else {
+                      pages.push(1);
+                      const start = Math.max(2, currentPage - 1);
+                      const end = Math.min(totalPages - 1, currentPage + 1);
+                      
+                      if (start > 2) {
+                        pages.push("...");
+                      }
+                      for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                      }
+                      if (end < totalPages - 1) {
+                        pages.push("...");
+                      }
+                      pages.push(totalPages);
+                    }
+                    
+                    return pages;
+                  })().map((page, idx) => (
+                    page === "..." ? (
+                      <span className="grid size-9 place-items-center text-sm font-semibold text-slate-400" key={`dots-${idx}`}>
+                        ...
+                      </span>
+                    ) : (
+                      <button
+                        className={[
+                          "grid size-9 place-items-center rounded text-sm font-semibold border transition-all duration-200",
+                          page === currentPage
+                            ? "bg-sky-500 text-white border-sky-500 shadow-sm"
+                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50",
+                        ].join(" ")}
+                        key={`page-${page}`}
+                        onClick={() => setCurrentPage(page as number)}
+                        type="button"
+                      >
+                        {page}
+                      </button>
+                    )
+                  ))}
+                  
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                    className="grid size-9 place-items-center rounded border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none"
+                    type="button"
+                    title="Trang sau"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+
+                {/* Jump to page input */}
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span>Đi đến:</span>
+                  <input
+                    type="number"
+                    min={1}
+                    max={totalPages}
+                    value={jumpPage}
+                    onChange={(e) => setJumpPage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        const page = parseInt(jumpPage);
+                        if (page >= 1 && page <= totalPages) {
+                          setCurrentPage(page);
+                        }
+                      }
+                    }}
+                    className="h-9 w-12 rounded border border-slate-200 bg-white text-center outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 text-sm font-semibold"
+                  />
+                  <span>/ {totalPages}</span>
+                </div>
               </div>
             </div>
           )}

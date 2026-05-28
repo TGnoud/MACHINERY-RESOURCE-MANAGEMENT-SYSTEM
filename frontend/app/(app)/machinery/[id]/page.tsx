@@ -197,7 +197,7 @@ export default function MachineryDetailPage() {
             <p className="mt-2 text-slate-600">
               {machinery.name} • {machinery.serialNumber}
               <span
-                className={`ml-3 inline-flex rounded-full border px-3 py-0.5 text-xs font-bold ${statusInfo.className}`}
+                className={`ml-3 inline-flex rounded-full border px-3 py-0.5 text-xs font-bold whitespace-nowrap ${statusInfo.className}`}
               >
                 {statusInfo.label}
               </span>
@@ -447,12 +447,12 @@ export default function MachineryDetailPage() {
                               {log.type === 'PREVENTIVE' ? 'Định kỳ' : log.type === 'CORRECTIVE' ? 'Sự cố' : log.type || '—'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs ${priorityColors}`}>
+                              <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs whitespace-nowrap ${priorityColors}`}>
                                 {log.priority === 'HIGH' ? 'Khẩn cấp' : log.priority === 'MEDIUM' ? 'Trung bình' : 'Thấp'}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs ${statusColors}`}>
+                              <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs whitespace-nowrap ${statusColors}`}>
                                 {log.status === 'COMPLETED' ? 'Hoàn thành' : log.status === 'IN_PROGRESS' ? 'Đang làm' : 'Lên lịch'}
                               </span>
                             </td>
@@ -521,7 +521,7 @@ export default function MachineryDetailPage() {
                               {asg.endDate ? new Date(asg.endDate).toLocaleDateString('vi-VN') : 'Chưa xác định'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex rounded-full border px-3 py-0.5 text-xs ${statusColors}`}>
+                              <span className={`inline-flex rounded-full border px-3 py-0.5 text-xs whitespace-nowrap ${statusColors}`}>
                                 {asg.status === 'COMPLETED' ? 'Đã hoàn thành' : asg.status === 'ACTIVE' ? 'Đang hoạt động' : 'Lên lịch'}
                               </span>
                             </td>
