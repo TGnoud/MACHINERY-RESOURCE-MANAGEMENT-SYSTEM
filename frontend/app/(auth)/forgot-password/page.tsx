@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ArrowRight, CheckCircle2, LockKeyhole, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { ApiError, authApi } from "../../../lib/api";
 import { AuthShell } from "../_components/auth-shell";
 import { FormField } from "../_components/form-field";
 import {
@@ -17,6 +18,8 @@ import { SubmitButton } from "../_components/submit-button";
 export default function ForgotPasswordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
+  const [resetUrl, setResetUrl] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const {
     register,
@@ -31,15 +34,29 @@ export default function ForgotPasswordPage() {
   });
 
   async function onSubmit(values: ForgotPasswordFormValues) {
+    setErrorMessage("");
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    setIsSubmitting(false);
-    setSentEmail(values.email);
+
+    try {
+      const result = await authApi.forgotPassword(values.email);
+      setSentEmail(values.email);
+      setResetUrl(result.resetUrl);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof ApiError
+          ? error.message
+          : "Không thể gửi yêu cầu khôi phục. Vui lòng thử lại.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleRetry() {
     reset({ email: sentEmail });
     setSentEmail("");
+    setResetUrl("");
+    setErrorMessage("");
   }
 
   return (
@@ -58,6 +75,14 @@ export default function ForgotPasswordPage() {
               <span className="font-semibold text-slate-950">{sentEmail}</span>{" "}
               để tiếp tục khôi phục mật khẩu.
             </p>
+            {resetUrl && (
+              <Link
+                className="mt-6 inline-flex rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm font-semibold text-sky-800 transition hover:bg-sky-100"
+                href={resetUrl}
+              >
+                Mở liên kết đặt lại mật khẩu
+              </Link>
+            )}
             <button
               className="mt-8 text-sm font-semibold text-sky-700 transition hover:text-sky-600"
               type="button"
@@ -91,6 +116,12 @@ export default function ForgotPasswordPage() {
                 error={errors.email?.message}
                 {...register("email")}
               />
+
+              {errorMessage && (
+                <p aria-live="polite" className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {errorMessage}
+                </p>
+              )}
 
               <SubmitButton className="h-16 text-base" loading={isSubmitting} type="submit">
                 <span>Gửi hướng dẫn khôi phục</span>

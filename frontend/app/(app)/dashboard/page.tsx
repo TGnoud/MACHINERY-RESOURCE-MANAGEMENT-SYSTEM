@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import {
   Bolt,
   Download,
@@ -15,6 +18,7 @@ import {
   PagePad,
   SecondaryButton,
 } from "../_components/ui";
+import { getStoredUser } from "@/lib/api";
 
 const maintenanceRows = [
   {
@@ -82,17 +86,67 @@ const activities = [
   },
 ];
 
+const moreActivities = [
+  {
+    title: "Bàn giao thiết bị",
+    body: "Lê Văn C đã bàn giao Máy phát điện Cummins cho đội công trình số 2.",
+    time: "3 giờ trước",
+    tone: "sky" as const,
+  },
+  {
+    title: "Hoàn thành bảo trì",
+    body: "Phiếu bảo trì MT-2023-087 cho Máy phát điện Cummins đã hoàn thành.",
+    time: "4 giờ trước",
+    tone: "green" as const,
+  },
+  {
+    title: "Cập nhật tài khoản",
+    body: "Admin đã cập nhật quyền hạn cho tài khoản Kỹ thuật viên Nguyễn Văn B.",
+    time: "5 giờ trước",
+    tone: "slate" as const,
+  },
+  {
+    title: "Cảnh báo quá nhiệt",
+    body: "Thiết bị Máy xúc Komatsu phát hiện cảnh báo nhiệt độ động cơ vượt ngưỡng.",
+    time: "Hôm qua",
+    tone: "amber" as const,
+  },
+];
+
 export default function DashboardPage() {
+  const [activitiesList, setActivitiesList] = useState(activities);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
+
+  async function handleLoadMore() {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+    // Giả lập độ trễ mạng 600ms
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    setActivitiesList((prev) => [...prev, ...moreActivities]);
+    setHasMore(false);
+    setIsLoadingMore(false);
+  }
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">
         <div className="mb-7 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-sky-700">
-              Admin
+            <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${
+              user?.role === "ADMIN" ? "border-sky-200 bg-sky-50 text-sky-700" :
+              user?.role === "DISPATCHER" ? "border-purple-200 bg-purple-50 text-purple-700" :
+              "border-emerald-200 bg-emerald-50 text-emerald-700"
+            }`}>
+              {user?.role ?? "ADMIN"}
             </span>
             <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-950 md:text-5xl">
-              Chào mừng trở lại, Nguyễn Văn A
+              Chào mừng trở lại, {user?.fullName ?? "Nguyễn Văn A"}
             </h1>
             <p className="mt-2 text-lg text-slate-600">
               Tổng quan hoạt động hệ thống ngày hôm nay.
@@ -265,10 +319,20 @@ export default function DashboardPage() {
               </h2>
             </div>
             <div className="p-5">
-              <ActivityTimeline items={activities} />
-              <button className="mt-5 h-10 w-full rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500">
-                Tải thêm
-              </button>
+              <ActivityTimeline items={activitiesList} />
+              {hasMore ? (
+                <button
+                  disabled={isLoadingMore}
+                  onClick={handleLoadMore}
+                  className="mt-5 flex h-10 w-full items-center justify-center rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isLoadingMore ? "Đang tải…" : "Tải thêm"}
+                </button>
+              ) : (
+                <p className="mt-5 text-center text-xs font-semibold text-slate-400">
+                  Đã hiển thị toàn bộ hoạt động gần đây.
+                </p>
+              )}
             </div>
           </Card>
         </div>

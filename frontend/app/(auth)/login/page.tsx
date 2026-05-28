@@ -2,16 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LogIn, Mail, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { ApiError, authApi, storeAuthSession } from "../../../lib/api";
 import { AuthShell } from "../_components/auth-shell";
 import { FormField } from "../_components/form-field";
 import { loginSchema, type LoginFormValues } from "../_components/schemas";
 import { SubmitButton } from "../_components/submit-button";
 
+const mockUsers: Record<
+  string,
+  { fullName: string; role: "ADMIN" | "DISPATCHER" | "TECHNICIAN" }
+> = {
+  "admin@gnoudcrm.vn": { fullName: "Nguyễn Văn A", role: "ADMIN" },
+  "dispatcher@gnoudcrm.vn": { fullName: "Trần Thị B", role: "DISPATCHER" },
+  "tech@gnoudcrm.vn": { fullName: "Phạm Văn C", role: "TECHNICIAN" },
+  "technician@gnoudcrm.vn": { fullName: "Phạm Văn C", role: "TECHNICIAN" },
+};
+
 export default function LoginPage() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState("");
 
@@ -28,12 +41,58 @@ export default function LoginPage() {
     },
   });
 
-  async function onSubmit() {
+  async function onSubmit(values: LoginFormValues) {
     setNotice("");
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    setIsSubmitting(false);
-    setNotice("Demo FE: form hợp lệ, backend đăng nhập sẽ được kết nối ở bước sau.");
+
+    try {
+      // 1. Thử gọi API thật để kiểm tra Auth Backend
+      const auth = await authApi.login({
+        email: values.email,
+        password: values.password,
+      });
+
+      storeAuthSession(auth);
+      router.push("/dashboard");
+    } catch (error) {
+      // 2. Nếu lỗi do API offline hoặc lỗi mạng (không phải ApiError 401/403/400)
+      // thì chúng ta tự động kích hoạt chế độ offline mock làm fallback cho tiện lợi.
+      const emailKey = values.email.toLowerCase().trim();
+      const isNetworkOrOfflineError = !(error instanceof ApiError);
+
+      if (isNetworkOrOfflineError && mockUsers[emailKey]) {
+        console.warn("Backend API offline. Kích hoạt Mock Session dự phòng...");
+        const mockUser = mockUsers[emailKey];
+        const auth = {
+          user: {
+            id: "mock-" + mockUser.role.toLowerCase(),
+            fullName: mockUser.fullName,
+            email: emailKey,
+            role: mockUser.role,
+            status: "ACTIVE" as const,
+          },
+          tokens: {
+            accessToken: "mock-access-token",
+            refreshToken: "mock-refresh-token",
+            expiresIn: 3600,
+          },
+        };
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        storeAuthSession(auth);
+        router.push("/dashboard");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setNotice(
+        error instanceof ApiError
+          ? error.message
+          : "Không thể kết nối đến máy chủ backend. Vui lòng kiểm tra cổng PORT hoặc CORS.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -90,7 +149,7 @@ export default function LoginPage() {
           </div>
 
           {notice && (
-            <p aria-live="polite" className="rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-800">
+            <p aria-live="polite" className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
               {notice}
             </p>
           )}

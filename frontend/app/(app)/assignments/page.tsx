@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,8 +13,10 @@ import {
   UserCog,
 } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 import { Card, PagePad } from "../_components/ui";
+import { getStoredUser } from "@/lib/api";
 
 const assignmentRows = [
   {
@@ -66,6 +70,12 @@ const assignmentRows = [
 ];
 
 export default function AssignmentsPage() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">
@@ -78,13 +88,15 @@ export default function AssignmentsPage() {
               Quản lý và theo dõi các lệnh điều động thiết bị công nghiệp.
             </p>
           </div>
-          <Link
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-sky-700 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
-            href="/assignments/new"
-          >
-            <Plus className="size-4" />
-            Tạo phiếu điều phối
-          </Link>
+          {user?.role !== "TECHNICIAN" && (
+            <Link
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-sky-700 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
+              href="/assignments/new"
+            >
+              <Plus className="size-4" />
+              Tạo phiếu điều phối
+            </Link>
+          )}
         </div>
 
         <Card className="mb-6 p-4">

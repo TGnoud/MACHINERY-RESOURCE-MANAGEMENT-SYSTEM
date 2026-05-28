@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   CalendarDays,
   ChevronDown,
@@ -11,8 +15,27 @@ import {
 import type { ComponentType, ReactNode } from "react";
 
 import { Card, PagePad } from "../../_components/ui";
+import { getStoredUser } from "@/lib/api";
 
 export default function NewAssignmentPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const u = getStoredUser();
+    setUser(u);
+    if (u && u.role !== "ADMIN" && u.role !== "DISPATCHER") {
+      router.replace("/403");
+    } else {
+      setLoading(false);
+    }
+  }, [router]);
+
+  if (loading) {
+    return <div className="min-h-screen bg-slate-50" />;
+  }
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">

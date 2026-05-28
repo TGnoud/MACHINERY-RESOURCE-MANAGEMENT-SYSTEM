@@ -13,3 +13,9 @@ services:
         value: https://machinery-resource-management-syste.vercel.app
       - key: MONGODB_URI
         sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: PASSWORD_RESET_SECRET
+        sync: false

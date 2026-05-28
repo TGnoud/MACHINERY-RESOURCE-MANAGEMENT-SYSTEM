@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Lock, Mail, Shield, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import { ApiError, authApi, storeAuthSession } from "../../../lib/api";
 import { AuthShell } from "../_components/auth-shell";
 import { FormField } from "../_components/form-field";
 import {
@@ -15,6 +17,7 @@ import {
 import { SubmitButton } from "../_components/submit-button";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState("");
 
@@ -33,12 +36,28 @@ export default function RegisterPage() {
     },
   });
 
-  async function onSubmit() {
+  async function onSubmit(values: RegisterFormValues) {
     setSuccess("");
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 900));
-    setIsSubmitting(false);
-    setSuccess("Demo FE: tài khoản hợp lệ và sẵn sàng gửi tới API đăng ký.");
+
+    try {
+      const auth = await authApi.register({
+        fullName: values.fullName,
+        email: values.email,
+        password: values.password,
+      });
+
+      storeAuthSession(auth);
+      router.push("/dashboard");
+    } catch (error) {
+      setSuccess(
+        error instanceof ApiError
+          ? error.message
+          : "Không thể tạo tài khoản. Vui lòng thử lại.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -138,7 +157,7 @@ export default function RegisterPage() {
           </div>
 
           {success && (
-            <p aria-live="polite" className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <p aria-live="polite" className="rounded-lg border border-sky-100 bg-sky-50 px-4 py-3 text-sm text-sky-800">
               {success}
             </p>
           )}

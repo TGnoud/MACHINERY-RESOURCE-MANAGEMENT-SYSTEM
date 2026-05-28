@@ -17,6 +17,7 @@ import {
   Search,
   UserCircle,
 } from "lucide-react";
+import { getStoredUser, authApi, clearAuthSession } from "@/lib/api";
 
 type NavItem = {
   label: string;
@@ -106,7 +107,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, [pathname]);
+
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
 
@@ -126,10 +132,23 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  async function handleLogout() {
+    setIsProfileOpen(false);
+
+    try {
+      await authApi.logout();
+    } catch {
+      // Continue client-side logout even when the token is already expired.
+    } finally {
+      clearAuthSession();
+      window.location.href = "/login";
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-950">
       <aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] flex-col border-r border-slate-200 bg-white px-4 py-6 md:flex">
-        <Brand compact={pathname === "/maintenance"} />
+        <Brand />
         <nav className="mt-10 flex flex-1 flex-col gap-2">
           {navItems.map((item) => (
             <SidebarLink
@@ -201,9 +220,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   ))}
                 </div>
                 <Link
-                  href="/dashboard"
+                  href="/profile?showActivities=true"
                   onClick={() => setIsNotificationsOpen(false)}
-                  className="block border-t border-slate-100 py-2.5 text-center text-xs font-bold text-sky-700 hover:bg-slate-50"
+                  className="block border-t border-slate-100 py-2.5 text-center text-xs font-bold text-sky-700 hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none"
                 >
                   Xem tất cả hoạt động
                 </Link>
@@ -235,21 +254,34 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
 
             {isProfileOpen && !isForbidden && (
-              <div className="absolute right-0 mt-2 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-xl ring-1 ring-black/5 z-50">
+              <div className="absolute right-0 mt-2 w-56 rounded-lg border border-slate-200 bg-white py-1 shadow-xl ring-1 ring-black/5 z-50">
+                <div className="border-b border-slate-100 px-4 py-2.5 bg-slate-50/50">
+                  <p className="text-xs font-bold text-slate-900 truncate">
+                    {user?.fullName ?? "Nguyễn Văn A"}
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-500 truncate mt-0.5">
+                    {user?.email ?? "admin@gnoudcrm.vn"}
+                  </p>
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider mt-1.5 ${
+                    user?.role === "ADMIN" ? "bg-sky-100 text-sky-800" :
+                    user?.role === "DISPATCHER" ? "bg-purple-100 text-purple-800" :
+                    "bg-teal-100 text-teal-800"
+                  }`}>
+                    {user?.role === "ADMIN" ? "ADMIN" :
+                     user?.role === "DISPATCHER" ? "ĐIỀU PHỐI" :
+                     user?.role === "TECHNICIAN" ? "KỸ THUẬT" : "ADMIN"}
+                  </span>
+                </div>
                 <Link
                   href="/profile"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-sky-700 focus-visible:bg-slate-50 focus-visible:text-sky-700 focus-visible:outline-none"
+                  className="flex items-center gap-2 px-4 py-2 mt-1 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:text-sky-700 focus-visible:bg-slate-50 focus-visible:text-sky-700 focus-visible:outline-none"
                 >
                   <UserCircle aria-hidden="true" className="size-4 text-slate-500" />
                   Cài đặt tài khoản
                 </Link>
                 <button
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    // Demo đăng xuất client-side
-                    window.location.href = "/login";
-                  }}
+                  onClick={handleLogout}
                   className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 focus-visible:bg-red-50 focus-visible:outline-none"
                 >
                   <LogOut aria-hidden="true" className="size-4 text-red-500" />

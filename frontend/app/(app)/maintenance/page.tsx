@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CheckCircle2,
   ChevronLeft,
@@ -9,17 +11,25 @@ import {
   WalletCards,
 } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 import {
   Card,
   PagePad,
   SecondaryButton,
 } from "../_components/ui";
+import { getStoredUser } from "@/lib/api";
 
 const emptyImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAq539ogYhRoBmUYZqXY8phqkiwhxlKyYfihT4VKem7Pce2T1mrvPIzGHyqgu-0qIm2ZHZ0Z5qWvsomnjbhYsLzGqpqKZQyHxtPWfuBy9JncWXQ3qUm59D6Ot0ETVBIalLQZBWEzggwnq41K1SLn8-wvug2TQCon1iaJZGrV-G8Oy783RelUdD9N7Vmjxj1rTTUGT0oxRnxQFGUE-zflra2bRovBrgza03gxKRU6fxAQmy-hYmtxOMHot5ICzhGc1GMu7iwAApaxmM";
 
 export default function MaintenancePage() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">
@@ -39,13 +49,15 @@ export default function MaintenancePage() {
               <Filter className="size-4" />
               Bộ lọc
             </SecondaryButton>
-            <Link
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-sky-700 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
-              href="/maintenance/new"
-            >
-              <Plus className="size-4" />
-              Tạo phiếu bảo trì
-            </Link>
+            {user?.role !== "DISPATCHER" && (
+              <Link
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-sky-700 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
+                href="/maintenance/new"
+              >
+                <Plus className="size-4" />
+                Tạo phiếu bảo trì
+              </Link>
+            )}
           </div>
         </div>
 

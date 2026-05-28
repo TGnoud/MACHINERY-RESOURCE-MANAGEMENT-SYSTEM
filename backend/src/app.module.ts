@@ -1,6 +1,20 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import {
+  Assignment,
+  AssignmentSchema,
+} from './assignments/schemas/assignment.schema';
+import { AuthModule } from './auth/auth.module';
+import { Category, CategorySchema } from './categories/schemas/category.schema';
+import {
+  Machinery,
+  MachinerySchema,
+} from './machineries/schemas/machinery.schema';
+import {
+  MaintenanceLog,
+  MaintenanceLogSchema,
+} from './maintenance/schemas/maintenance-log.schema';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -23,6 +37,13 @@ import { AppService } from './app.service';
         };
       },
     }),
+    MongooseModule.forFeature([
+      { name: Assignment.name, schema: AssignmentSchema },
+      { name: Category.name, schema: CategorySchema },
+      { name: Machinery.name, schema: MachinerySchema },
+      { name: MaintenanceLog.name, schema: MaintenanceLogSchema },
+    ]),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

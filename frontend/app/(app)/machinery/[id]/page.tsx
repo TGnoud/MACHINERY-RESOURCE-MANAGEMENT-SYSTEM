@@ -1,4 +1,7 @@
+"use client";
+
 import { ChevronRight, Edit3, Fuel, Timer, Truck } from "lucide-react";
+import { useState, useEffect } from "react";
 
 import {
   Card,
@@ -6,6 +9,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "../../_components/ui";
+import { getStoredUser } from "@/lib/api";
 
 const specs = [
   ["Công suất", "110 kW"],
@@ -26,6 +30,12 @@ const excavatorImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuC68h0cKSLsNjOwACYgXqr7yRKmMV5YlaQ6l2-OM2giS9tdxdwiDCdXT8Jvv24WqNxFGB2PTZJ2xoEMJyQlxcuc_8dRkB2M9bvP5KRg5i3F-_Uak3uf3sMY-7Jv7aFm8Myy9QeF4lQSj2pI-sPoLH-vIouP6BqpfYbehzLWoAqDaZeTSD06MAyecqeeQ9LqLsLqM-xnJVebP97X2M5dlrQfCNe9IfvGYfNKXdh-9ezFDIVdQbc5Zuqv4vtrCAAaMcfMCcbkaE4ywZc";
 
 export default function MachineryDetailPage() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
+
   return (
     <PagePad>
       <div className="mx-auto max-w-6xl">
@@ -39,14 +49,18 @@ export default function MachineryDetailPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <SecondaryButton>
-              <Edit3 className="size-4" />
-              Sửa
-            </SecondaryButton>
-            <PrimaryButton className="h-11 px-6">
-              <Truck className="size-4" />
-              Điều phối
-            </PrimaryButton>
+            {user?.role === "ADMIN" && (
+              <SecondaryButton>
+                <Edit3 className="size-4" />
+                Sửa
+              </SecondaryButton>
+            )}
+            {user?.role !== "TECHNICIAN" && (
+              <PrimaryButton className="h-11 px-6">
+                <Truck className="size-4" />
+                Điều phối
+              </PrimaryButton>
+            )}
           </div>
         </div>
 

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import {
   Download,
   Eye,
@@ -9,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Card, PagePad } from "../_components/ui";
+import { getStoredUser } from "@/lib/api";
 
 const equipmentRows = [
   {
@@ -68,6 +72,12 @@ const equipmentRows = [
 const filters = ["Tất cả", "Sẵn sàng", "Đang thuê", "Bảo trì"];
 
 export default function MachineryPage() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    setUser(getStoredUser());
+  }, []);
+
   return (
     <PagePad>
       <div className="mx-auto max-w-7xl">
@@ -80,13 +90,15 @@ export default function MachineryPage() {
               Danh sách máy móc và trạng thái vận hành hiện tại.
             </p>
           </div>
-          <Link
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-sky-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
-            href="/machinery/new"
-          >
-            <Plus className="size-4" />
-            Thêm thiết bị
-          </Link>
+          {user?.role === "ADMIN" && (
+            <Link
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-sky-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
+              href="/machinery/new"
+            >
+              <Plus className="size-4" />
+              Thêm thiết bị
+            </Link>
+          )}
         </div>
 
         <Card className="overflow-hidden">
@@ -184,9 +196,11 @@ export default function MachineryPage() {
                         >
                           <Eye className="size-4" />
                         </Link>
-                        <button className="grid size-8 place-items-center rounded-md transition hover:bg-slate-100 hover:text-sky-700">
-                          <Pencil className="size-4" />
-                        </button>
+                        {user?.role === "ADMIN" && (
+                          <button className="grid size-8 place-items-center rounded-md transition hover:bg-slate-100 hover:text-sky-700">
+                            <Pencil className="size-4" />
+                          </button>
+                        )}
                         <button className="grid size-8 place-items-center rounded-md transition hover:bg-slate-100">
                           <MoreVertical className="size-4" />
                         </button>
