@@ -13,7 +13,7 @@ import {
   UserCog,
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Card, PagePad } from "../_components/ui";
 import { getStoredUser } from "@/lib/api";
@@ -70,11 +70,7 @@ const assignmentRows = [
 ];
 
 export default function AssignmentsPage() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
+  const [user] = useState(() => getStoredUser());
 
   return (
     <PagePad>

@@ -17,6 +17,26 @@ export class SparePart {
 
 const SparePartSchema = SchemaFactory.createForClass(SparePart);
 
+export enum MaintenanceType {
+  Routine = 'ROUTINE',
+  Emergency = 'EMERGENCY',
+  Inspection = 'INSPECTION',
+  Replacement = 'REPLACEMENT',
+}
+
+export enum MaintenancePriority {
+  Low = 'LOW',
+  Medium = 'MEDIUM',
+  High = 'HIGH',
+  Critical = 'CRITICAL',
+}
+
+export enum MaintenanceStatus {
+  Pending = 'PENDING',
+  InProgress = 'IN_PROGRESS',
+  Completed = 'COMPLETED',
+}
+
 @Schema({ timestamps: true })
 export class MaintenanceLog {
   @Prop({
@@ -37,6 +57,27 @@ export class MaintenanceLog {
 
   @Prop({ default: 0, min: 0 })
   cost: number;
+
+  @Prop({
+    enum: MaintenanceType,
+    default: MaintenanceType.Routine,
+    required: true,
+  })
+  type: MaintenanceType;
+
+  @Prop({
+    enum: MaintenancePriority,
+    default: MaintenancePriority.Medium,
+    required: true,
+  })
+  priority: MaintenancePriority;
+
+  @Prop({
+    enum: MaintenanceStatus,
+    default: MaintenanceStatus.Pending,
+    required: true,
+  })
+  status: MaintenanceStatus;
 
   @Prop({ required: true, trim: true })
   description: string;

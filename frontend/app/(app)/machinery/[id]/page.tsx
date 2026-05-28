@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronRight, Edit3, Fuel, Timer, Truck } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
   Card,
@@ -30,11 +30,7 @@ const excavatorImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuC68h0cKSLsNjOwACYgXqr7yRKmMV5YlaQ6l2-OM2giS9tdxdwiDCdXT8Jvv24WqNxFGB2PTZJ2xoEMJyQlxcuc_8dRkB2M9bvP5KRg5i3F-_Uak3uf3sMY-7Jv7aFm8Myy9QeF4lQSj2pI-sPoLH-vIouP6BqpfYbehzLWoAqDaZeTSD06MAyecqeeQ9LqLsLqM-xnJVebP97X2M5dlrQfCNe9IfvGYfNKXdh-9ezFDIVdQbc5Zuqv4vtrCAAaMcfMCcbkaE4ywZc";
 
 export default function MachineryDetailPage() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
+  const [user] = useState(() => getStoredUser());
 
   return (
     <PagePad>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Download,
   Eye,
@@ -72,11 +72,7 @@ const equipmentRows = [
 const filters = ["Tất cả", "Sẵn sàng", "Đang thuê", "Bảo trì"];
 
 export default function MachineryPage() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
+  const [user] = useState(() => getStoredUser());
 
   return (
     <PagePad>

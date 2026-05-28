@@ -19,6 +19,12 @@ export class Machinery {
   @Prop({ trim: true })
   manufacturer?: string;
 
+  @Prop({ default: 0, min: 0 })
+  operatingHours: number;
+
+  @Prop({ default: 0, min: 0 })
+  fuelConsumption: number;
+
   @Prop()
   purchaseYear?: number;
 

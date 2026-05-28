@@ -22,20 +22,19 @@ import { getStoredUser } from "@/lib/api";
 
 export default function NewMaintenanceTicketPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [isAllowed] = useState(() => {
+    const user = getStoredUser();
+
+    return !user || user.role === "ADMIN" || user.role === "TECHNICIAN";
+  });
 
   useEffect(() => {
-    const u = getStoredUser();
-    setUser(u);
-    if (u && u.role !== "ADMIN" && u.role !== "TECHNICIAN") {
+    if (!isAllowed) {
       router.replace("/403");
-    } else {
-      setLoading(false);
     }
-  }, [router]);
+  }, [isAllowed, router]);
 
-  if (loading) {
+  if (!isAllowed) {
     return <div className="min-h-screen bg-slate-50" />;
   }
 

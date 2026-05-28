@@ -41,6 +41,40 @@ export type AuthResponse = {
   tokens: AuthTokens;
 };
 
+export type DashboardStats = {
+  total: number;
+  available: number;
+  rented: number;
+  maintenance: number;
+  availabilityRate: number;
+  rentedRate: number;
+  maintenanceRate: number;
+};
+
+export type DashboardCostPoint = {
+  month: number;
+  year: number;
+  label: string;
+  totalCost: number;
+};
+
+export type DashboardMaintenanceRow = {
+  id: string;
+  equipment: string;
+  technician: string;
+  date: string;
+  level: string;
+  status: string;
+  cost: number;
+};
+
+export type DashboardActivity = {
+  title: string;
+  body: string;
+  time: string;
+  tone: "sky" | "green" | "slate" | "amber";
+};
+
 export function apiUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
@@ -200,5 +234,34 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify(input),
     });
+  },
+};
+
+export const dashboardApi = {
+  getStats() {
+    return apiFetch<DashboardStats>("/api/v1/dashboard/stats", {
+      auth: true,
+    });
+  },
+  getCostHistory() {
+    return apiFetch<DashboardCostPoint[]>("/api/v1/dashboard/cost-history", {
+      auth: true,
+    });
+  },
+  getRecentMaintenance() {
+    return apiFetch<DashboardMaintenanceRow[]>(
+      "/api/v1/dashboard/recent-maintenance",
+      {
+        auth: true,
+      },
+    );
+  },
+  getRecentActivities() {
+    return apiFetch<DashboardActivity[]>(
+      "/api/v1/dashboard/recent-activities",
+      {
+        auth: true,
+      },
+    );
   },
 };

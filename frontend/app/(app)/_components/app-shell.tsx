@@ -107,11 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, [pathname]);
+  const [user] = useState(() => getStoredUser());
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);

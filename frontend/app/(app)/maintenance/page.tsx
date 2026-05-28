@@ -11,7 +11,7 @@ import {
   WalletCards,
 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import {
   Card,
@@ -24,11 +24,7 @@ const emptyImage =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAq539ogYhRoBmUYZqXY8phqkiwhxlKyYfihT4VKem7Pce2T1mrvPIzGHyqgu-0qIm2ZHZ0Z5qWvsomnjbhYsLzGqpqKZQyHxtPWfuBy9JncWXQ3qUm59D6Ot0ETVBIalLQZBWEzggwnq41K1SLn8-wvug2TQCon1iaJZGrV-G8Oy783RelUdD9N7Vmjxj1rTTUGT0oxRnxQFGUE-zflra2bRovBrgza03gxKRU6fxAQmy-hYmtxOMHot5ICzhGc1GMu7iwAApaxmM";
 
 export default function MaintenancePage() {
-  const [user, setUser] = useState<any>(null);
-
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
+  const [user] = useState(() => getStoredUser());
 
   return (
     <PagePad>

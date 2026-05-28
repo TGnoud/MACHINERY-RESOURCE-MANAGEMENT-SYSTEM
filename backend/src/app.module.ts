@@ -7,6 +7,7 @@ import {
 } from './assignments/schemas/assignment.schema';
 import { AuthModule } from './auth/auth.module';
 import { Category, CategorySchema } from './categories/schemas/category.schema';
+import { DashboardModule } from './dashboard/dashboard.module';
 import {
   Machinery,
   MachinerySchema,
@@ -44,6 +45,7 @@ import { AppService } from './app.service';
       { name: MaintenanceLog.name, schema: MaintenanceLogSchema },
     ]),
     AuthModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
