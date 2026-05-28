@@ -58,6 +58,82 @@ const getCategoryImage = (item: MachineryItem) => {
   return "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=200";
 };
 
+// Hidden fallback image cache to track URLs that have failed globally
+const failedUrls = new Set();
+
+const ImageWithFallback = ({
+  item,
+  machineries,
+  getCategoryImage,
+}: {
+  item: MachineryItem;
+  machineries: MachineryItem[];
+  getCategoryImage: (item: MachineryItem) => string;
+}) => {
+  const initialSrc = getCategoryImage(item);
+  const [imgSrc, setImgSrc] = useState(initialSrc);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const currentSrc = getCategoryImage(item);
+    if (failedUrls.has(currentSrc)) {
+      // If we already know this URL is broken, trigger fallback immediately
+      triggerFallback(currentSrc);
+    } else {
+      setImgSrc(currentSrc);
+      setFailed(false);
+    }
+  }, [item, getCategoryImage]);
+
+  const triggerFallback = (failedSrc: string) => {
+    failedUrls.add(failedSrc);
+    setFailed(true);
+
+    const categoryName = item.category?.name;
+    // Find another machinery in the list with the same category that has a different imageUrl that has not failed
+    const sibling = machineries.find(
+      (m) =>
+        m._id !== item._id &&
+        m.category?.name === categoryName &&
+        m.imageUrl &&
+        m.imageUrl !== failedSrc &&
+        !failedUrls.has(m.imageUrl)
+    );
+
+    if (sibling && sibling.imageUrl) {
+      console.log("Fallback for " + item.name + " -> sibling " + sibling.name + ": " + sibling.imageUrl);
+      setImgSrc(sibling.imageUrl);
+    } else {
+      // Fallback to Unsplash category image
+      const catName = (categoryName || "").toLowerCase();
+      let fallbackUrl = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=200";
+      if (catName.includes("xúc") || catName.includes("cuốc") || catName.includes("đào")) {
+        fallbackUrl = "https://images.unsplash.com/photo-1579684389782-64d84b5e9053?auto=format&fit=crop&q=80&w=200";
+      } else if (catName.includes("cẩu") || catName.includes("nâng")) {
+        fallbackUrl = "https://images.unsplash.com/photo-1542362567-b07eac79094d?auto=format&fit=crop&q=80&w=200";
+      } else if (catName.includes("ủi") || catName.includes("lu")) {
+        fallbackUrl = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=200";
+      }
+      setImgSrc(fallbackUrl);
+    }
+  };
+
+  const handleError = () => {
+    if (failed) return;
+    triggerFallback(imgSrc);
+  };
+
+  return (
+    <img
+      src={imgSrc}
+      alt={item.name}
+      onError={handleError}
+      className="size-12 rounded-xl object-cover border border-slate-100 shadow-sm transition hover:scale-105 duration-200 bg-slate-100"
+    />
+  );
+};
+
+
 export default function MachineryPage() {
   const [user] = useState(() => getStoredUser());
   const [machineries, setMachineries] = useState<MachineryItem[]>([]);
@@ -352,10 +428,10 @@ export default function MachineryPage() {
                             key={item._id}
                           >
                             <td className="px-4 py-4">
-                              <div
-                                className="size-12 rounded-xl bg-slate-200 bg-cover bg-center border border-slate-100 shadow-sm transition hover:scale-105 duration-200"
-                                style={{ backgroundImage: `url(${getCategoryImage(item)})` }}
-                                title={`${item.name} image`}
+                              <ImageWithFallback
+                                item={item}
+                                machineries={machineries}
+                                getCategoryImage={getCategoryImage}
                               />
                             </td>
                             <td className="px-4 py-4">

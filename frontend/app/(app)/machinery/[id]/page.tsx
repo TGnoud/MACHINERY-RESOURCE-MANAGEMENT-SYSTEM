@@ -53,6 +53,29 @@ export default function MachineryDetailPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"overview" | "specs" | "maintenance" | "assignments">("overview");
+
+  const [imgSrc, setImgSrc] = useState<string>("");
+
+  useEffect(() => {
+    if (machinery) {
+      setImgSrc(getCategoryImage(machinery));
+    }
+  }, [machinery]);
+
+  const handleImageError = () => {
+    if (!machinery) return;
+    const catName = (machinery.category?.name || "").toLowerCase();
+    let fallbackUrl = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=600";
+    if (catName.includes("xúc") || catName.includes("cuốc") || catName.includes("đào")) {
+      fallbackUrl = "https://images.unsplash.com/photo-1579684389782-64d84b5e9053?auto=format&fit=crop&q=80&w=600";
+    } else if (catName.includes("cẩu") || catName.includes("nâng")) {
+      fallbackUrl = "https://images.unsplash.com/photo-1542362567-b07eac79094d?auto=format&fit=crop&q=80&w=600";
+    } else if (catName.includes("ủi") || catName.includes("lu")) {
+      fallbackUrl = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=600";
+    }
+    setImgSrc(fallbackUrl);
+  };
+
   const [maintenanceLogs, setMaintenanceLogs] = useState<any[]>([]);
   const [loadingMaintenance, setLoadingMaintenance] = useState(false);
   const [assignments, setAssignments] = useState<any[]>([]);
@@ -287,10 +310,14 @@ export default function MachineryDetailPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Left column - Basic info card */}
             <Card className="overflow-hidden rounded-3xl shadow-sm">
-              <div
-                className="h-56 bg-slate-200 bg-cover bg-center transition-all duration-300 hover:scale-105"
-                style={{ backgroundImage: `url(${getCategoryImage(machinery)})` }}
-              />
+              <div className="h-56 overflow-hidden bg-slate-200">
+                <img
+                  src={imgSrc}
+                  onError={handleImageError}
+                  alt={machinery.name}
+                  className="h-full w-full object-cover transition-all duration-300 hover:scale-105"
+                />
+              </div>
               <div className="p-6">
                 <h2 className="mb-4 text-xl font-bold text-slate-950">
                   Thông tin cơ bản
