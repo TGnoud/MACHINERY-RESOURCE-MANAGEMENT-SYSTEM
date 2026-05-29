@@ -4,6 +4,10 @@ import { AuthModule } from '../auth/auth.module';
 import { Assignment, AssignmentSchema } from './schemas/assignment.schema';
 import { Machinery, MachinerySchema } from '../machineries/schemas/machinery.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
+import {
+  MaintenanceLog,
+  MaintenanceLogSchema,
+} from '../maintenance/schemas/maintenance-log.schema';
 import { AssignmentsService } from './assignments.service';
 import { AssignmentsController } from './assignments.controller';
 
@@ -14,6 +18,7 @@ import { AssignmentsController } from './assignments.controller';
       { name: Assignment.name, schema: AssignmentSchema },
       { name: Machinery.name, schema: MachinerySchema },
       { name: User.name, schema: UserSchema },
+      { name: MaintenanceLog.name, schema: MaintenanceLogSchema },
     ]),
   ],
   providers: [AssignmentsService],

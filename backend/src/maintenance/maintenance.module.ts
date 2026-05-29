@@ -7,6 +7,10 @@ import {
 } from '../machineries/schemas/machinery.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import {
+  Assignment,
+  AssignmentSchema,
+} from '../assignments/schemas/assignment.schema';
+import {
   MaintenanceLog,
   MaintenanceLogSchema,
 } from './schemas/maintenance-log.schema';
@@ -20,6 +24,7 @@ import { MaintenanceService } from './maintenance.service';
       { name: MaintenanceLog.name, schema: MaintenanceLogSchema },
       { name: Machinery.name, schema: MachinerySchema },
       { name: User.name, schema: UserSchema },
+      { name: Assignment.name, schema: AssignmentSchema },
     ]),
   ],
   controllers: [MaintenanceController],

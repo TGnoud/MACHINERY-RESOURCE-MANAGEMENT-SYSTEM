@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Download,
   Filter,
   Loader2,
   Plus,
@@ -148,8 +149,8 @@ export default function MaintenancePage() {
           ...(debouncedMaxCost && Number.isFinite(parsedMaxCost)
             ? { maxCost: parsedMaxCost }
             : {}),
-          sort: "createdAt",
-          order: "desc",
+          sort: "statusPriority",
+          order: "asc",
         }),
         maintenanceApi.getStats(),
       ]);
@@ -193,6 +194,47 @@ export default function MaintenancePage() {
     } finally {
       setUpdatingId(null);
     }
+  }
+
+  function handleDownloadCSV() {
+    const headers = [
+      "Ma phieu",
+      "Thiet bi",
+      "Serial",
+      "Ky thuat vien",
+      "Loai",
+      "Uu tien",
+      "Chi phi",
+      "Ngay tao",
+      "Trang thai",
+    ];
+    const escapeCsv = (value: unknown) => {
+      const text = String(value ?? "");
+      return `"${text.replace(/"/g, '""')}"`;
+    };
+    const rows = logs.map((log) => [
+      `MT-${log._id.slice(-6).toUpperCase()}`,
+      log.machinery?.name ?? "",
+      log.machinery?.serialNumber ?? "",
+      log.technician?.fullName ?? "",
+      TYPE_LABELS[log.type] ?? log.type,
+      PRIORITY_LABELS[log.priority] ?? log.priority,
+      log.cost,
+      new Date(log.createdAt).toLocaleDateString("vi-VN"),
+      STATUS_META[log.status]?.label ?? log.status,
+    ]);
+    const csv = [headers, ...rows]
+      .map((row) => row.map(escapeCsv).join(","))
+      .join("\n");
+    const blob = new Blob([`\uFEFF${csv}`], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `maintenance-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 
   function resetFilters() {
@@ -281,6 +323,15 @@ export default function MaintenancePage() {
               type="button"
             >
               <Filter className="size-4" />
+            </button>
+            <button
+              aria-label="Download CSV"
+              className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+              onClick={handleDownloadCSV}
+              title="Download CSV"
+              type="button"
+            >
+              <Download className="size-4" />
             </button>
           </div>
 
@@ -409,7 +460,7 @@ export default function MaintenancePage() {
                               {new Date(log.createdAt).toLocaleDateString("vi-VN")}
                             </td>
                             <td className="px-4 py-4">
-                              {canEditStatus ? (
+                              {canEditStatus && log.status !== "COMPLETED" ? (
                                 <select
                                   className={`h-9 rounded-full border px-3 text-xs font-bold outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 disabled:opacity-60 ${statusMeta.className}`}
                                   disabled={updatingId === log._id}

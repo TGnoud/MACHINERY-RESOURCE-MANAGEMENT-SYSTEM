@@ -118,7 +118,7 @@ const assignmentSchema = new Schema(
     endDate: Date,
     status: {
       type: String,
-      enum: ['PENDING', 'IN_TRANSIT', 'ACTIVE', 'COMPLETED'],
+      enum: ['PENDING', 'ACTIVE', 'COMPLETED'],
       default: 'PENDING',
     },
     notes: String,
@@ -581,7 +581,6 @@ async function seed() {
     'AVAILABLE', 'AVAILABLE', 'AVAILABLE', 'AVAILABLE', 'AVAILABLE', 'AVAILABLE',
     'AVAILABLE', 'AVAILABLE', 'AVAILABLE', 'AVAILABLE', 'AVAILABLE', 'AVAILABLE',
     'RENTED', 'RENTED', 'RENTED', 'RENTED', 'RENTED',
-    'MAINTENANCE', 'MAINTENANCE', 'MAINTENANCE',
   ];
 
   // Smart Upsert Machinery
@@ -682,7 +681,7 @@ async function seed() {
         endDate.setDate(startDate.getDate() + 10);
       } else {
         // Third assignment: Current status relative to May 29, 2026
-        const rand = (mIdx + j) % 4;
+        const rand = (mIdx + j) % 3;
         if (rand === 0) {
           status = 'PENDING';
           // PENDING: starts 2 to 10 days in the future
@@ -692,14 +691,6 @@ async function seed() {
           endDate = new Date(startDate);
           endDate.setDate(startDate.getDate() + 15 + (mIdx % 15));
         } else if (rand === 1) {
-          status = 'IN_TRANSIT';
-          // IN_TRANSIT: starts today, yesterday, or 2 days ago
-          startDate = new Date(now);
-          startDate.setDate(now.getDate() - (mIdx % 3));
-          
-          endDate = new Date(startDate);
-          endDate.setDate(startDate.getDate() + 10 + (mIdx % 10));
-        } else if (rand === 2) {
           status = 'ACTIVE';
           // ACTIVE: starts 5 to 25 days ago
           startDate = new Date(now);
@@ -854,12 +845,29 @@ async function seed() {
     }
   });
 
-  await Machinery.updateMany(
-    {
-      _id: { $nin: Array.from(activeMaintenanceMachineryIds) },
-      status: 'MAINTENANCE',
-    },
-    { status: 'AVAILABLE' },
+  assignments.forEach((assignment, index) => {
+    if (
+      assignment.status === 'ACTIVE' &&
+      activeMaintenanceMachineryIds.has(String(assignment.machinery))
+    ) {
+      assignment.status = 'PENDING';
+      assignment.startDate = new Date(now);
+      assignment.startDate.setDate(now.getDate() + 3 + (index % 10));
+      assignment.endDate = new Date(assignment.startDate);
+      assignment.endDate.setDate(assignment.startDate.getDate() + 12 + (index % 8));
+      assignment.createdAt = assignment.startDate;
+      assignment.updatedAt = assignment.startDate;
+    }
+  });
+
+  const activeAssignmentMachineryIds = new Set(
+    assignments
+      .filter(
+        (assignment) =>
+          assignment.status === 'ACTIVE' &&
+          !activeMaintenanceMachineryIds.has(String(assignment.machinery)),
+      )
+      .map((assignment) => String(assignment.machinery)),
   );
 
   if (activeMaintenanceMachineryIds.size > 0) {
@@ -868,6 +876,25 @@ async function seed() {
       { status: 'MAINTENANCE' },
     );
   }
+
+  if (activeAssignmentMachineryIds.size > 0) {
+    await Machinery.updateMany(
+      { _id: { $in: Array.from(activeAssignmentMachineryIds) } },
+      { status: 'RENTED' },
+    );
+  }
+
+  await Machinery.updateMany(
+    {
+      _id: {
+        $nin: [
+          ...Array.from(activeMaintenanceMachineryIds),
+          ...Array.from(activeAssignmentMachineryIds),
+        ],
+      },
+    },
+    { status: 'AVAILABLE' },
+  );
 
   await Assignment.insertMany(assignments);
   await MaintenanceLog.insertMany(maintenanceLogs);

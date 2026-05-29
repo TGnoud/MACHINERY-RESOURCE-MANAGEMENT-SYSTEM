@@ -33,10 +33,6 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
     label: "Chờ xử lý",
     className: "bg-amber-50 text-amber-700 border-amber-200",
   },
-  IN_TRANSIT: {
-    label: "Đang di chuyển",
-    className: "bg-sky-50 text-sky-700 border-sky-200",
-  },
   ACTIVE: {
     label: "Đang hoạt động",
     className: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -44,6 +40,21 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
   COMPLETED: {
     label: "Hoàn thành",
     className: "bg-slate-100 text-slate-700 border-slate-200",
+  },
+};
+
+const MACHINERY_STATUS_MAP: Record<string, { label: string; className: string }> = {
+  AVAILABLE: {
+    label: "Sẵn sàng",
+    className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  },
+  RENTED: {
+    label: "Đang thuê",
+    className: "border-sky-200 bg-sky-50 text-sky-700",
+  },
+  MAINTENANCE: {
+    label: "Bảo trì",
+    className: "border-rose-200 bg-rose-50 text-rose-700",
   },
 };
 
@@ -314,7 +325,6 @@ export default function AssignmentsPage() {
               >
                 <option value="">Tất cả trạng thái</option>
                 <option value="PENDING">Chờ xử lý</option>
-                <option value="IN_TRANSIT">Đang di chuyển</option>
                 <option value="ACTIVE">Đang hoạt động</option>
                 <option value="COMPLETED">Hoàn thành</option>
               </select>
@@ -648,7 +658,7 @@ export default function AssignmentsPage() {
                       <Truck className="size-4 text-slate-400 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-400">Trạng thái vận chuyển</p>
-                        {user?.role === "ADMIN" ? (
+                        {user?.role === "ADMIN" && selectedAssignment.status !== "COMPLETED" ? (
                           <div className="relative mt-1 block">
                             <select
                               value={tempStatus}
@@ -666,7 +676,6 @@ export default function AssignmentsPage() {
                               <option value="PENDING" disabled={selectedAssignment.status !== "PENDING"}>
                                 Chờ xử lý
                               </option>
-                              <option value="IN_TRANSIT">Đang di chuyển</option>
                               <option value="ACTIVE">Đang hoạt động</option>
                               <option value="COMPLETED">Hoàn thành</option>
                             </select>
@@ -745,6 +754,22 @@ export default function AssignmentsPage() {
                         <p className="text-xs text-slate-500">
                           Hãng sản xuất: {selectedAssignment.machinery.manufacturer || "—"}
                         </p>
+                        {selectedAssignment.status === "PENDING" && (
+                          <div className="mt-3">
+                            <p className="mb-1 text-xs font-bold text-slate-400">
+                              Trạng thái hiện tại của thiết bị
+                            </p>
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
+                                MACHINERY_STATUS_MAP[selectedAssignment.machinery.status]?.className ??
+                                "border-slate-200 bg-slate-50 text-slate-700"
+                              }`}
+                            >
+                              {MACHINERY_STATUS_MAP[selectedAssignment.machinery.status]?.label ??
+                                selectedAssignment.machinery.status}
+                            </span>
+                          </div>
+                        )}
                       </div>
                       
                       {/* Short specs list */}
@@ -789,7 +814,7 @@ export default function AssignmentsPage() {
                  Đóng
                </button>
 
-               {user?.role === "ADMIN" && (
+               {user?.role === "ADMIN" && selectedAssignment.status !== "COMPLETED" && (
                  <button
                    disabled={savingStatus || (tempStatus === selectedAssignment.status && tempEndDate === selectedAssignment.endDate)}
                    onClick={async () => {

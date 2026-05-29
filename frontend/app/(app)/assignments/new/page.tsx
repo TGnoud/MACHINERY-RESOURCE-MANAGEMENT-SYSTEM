@@ -46,7 +46,6 @@ export default function NewAssignmentPage() {
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("PENDING");
   const [notes, setNotes] = useState("");
   
   // Status feedback states
@@ -98,10 +97,41 @@ export default function NewAssignmentPage() {
     }
   }, [isAllowed]);
 
+  useEffect(() => {
+    const queryMachineryId = new URLSearchParams(window.location.search).get(
+      "machineryId",
+    );
+    if (!queryMachineryId || loadingMachineries || machineryId) {
+      return;
+    }
+
+    const machinery = machineries.find((item) => item._id === queryMachineryId);
+    if (!machinery) {
+      return;
+    }
+
+    setMachineryId(queryMachineryId);
+    if (machinery.status !== "AVAILABLE") {
+      setError(
+        "Thiết bị được chọn hiện không sẵn sàng để điều phối. Vui lòng chọn thiết bị khác.",
+      );
+    }
+  }, [loadingMachineries, machineries, machineryId]);
+
+  const selectedMachinery = machineries.find((item) => item._id === machineryId);
+  const selectedMachineryUnavailable =
+    Boolean(selectedMachinery) && selectedMachinery?.status !== "AVAILABLE";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!machineryId) {
       setError("Vui lòng chọn thiết bị cần điều động.");
+      return;
+    }
+    if (selectedMachineryUnavailable) {
+      setError(
+        "Thiết bị được chọn hiện không sẵn sàng để điều phối. Vui lòng chọn thiết bị khác.",
+      );
       return;
     }
     if (!destination.trim()) {
@@ -122,7 +152,6 @@ export default function NewAssignmentPage() {
         dispatcher: user?.id,
         destination: destination.trim(),
         startDate,
-        status,
         notes: notes.trim() || undefined,
       };
 
@@ -241,6 +270,7 @@ export default function NewAssignmentPage() {
                                     disabled={m.status !== "AVAILABLE"}
                                     onClick={() => {
                                       setMachineryId(m._id);
+                                      setError(null);
                                       setIsMachineryDropdownOpen(false);
                                       setMachinerySearch("");
                                     }}
@@ -402,7 +432,7 @@ export default function NewAssignmentPage() {
                 <button
                   className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-sky-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800 disabled:opacity-50"
                   type="submit"
-                  disabled={saving}
+                  disabled={saving || selectedMachineryUnavailable}
                 >
                   {saving ? (
                     <Loader2 className="size-5 animate-spin" />

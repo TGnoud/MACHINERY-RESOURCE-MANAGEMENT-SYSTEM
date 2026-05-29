@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { AuthenticatedUser } from '../auth/types';
@@ -12,6 +12,11 @@ import {
   MaintenanceLogDocument,
   MaintenanceStatus,
 } from './schemas/maintenance-log.schema';
+import {
+  Assignment,
+  AssignmentDocument,
+  AssignmentStatus,
+} from '../assignments/schemas/assignment.schema';
 import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { QueryMaintenanceLogDto } from './dto/query-maintenance-log.dto';
 import { UpdateMaintenanceLogDto } from './dto/update-maintenance-log.dto';
@@ -23,6 +28,8 @@ export class MaintenanceService {
     private readonly maintenanceLogModel: Model<MaintenanceLogDocument>,
     @InjectModel(Machinery.name)
     private readonly machineryModel: Model<MachineryDocument>,
+    @InjectModel(Assignment.name)
+    private readonly assignmentModel: Model<AssignmentDocument>,
   ) {}
 
   async findAll(query: QueryMaintenanceLogDto) {
@@ -79,14 +86,7 @@ export class MaintenanceService {
     };
 
     const [data, total] = await Promise.all([
-      this.maintenanceLogModel
-        .find(filter)
-        .sort(sortObj)
-        .skip(skip)
-        .limit(limit)
-        .populate('machinery')
-        .populate('technician', 'fullName email role')
-        .lean(),
+      this.findMaintenanceLogs(filter, sort, sortObj, skip, limit),
       this.maintenanceLogModel.countDocuments(filter),
     ]);
 
@@ -171,6 +171,31 @@ export class MaintenanceService {
       throw new NotFoundException(`Maintenance log with id "${id}" not found`);
     }
 
+    if (
+      existing.status === MaintenanceStatus.Completed &&
+      dto.status &&
+      dto.status !== MaintenanceStatus.Completed
+    ) {
+      throw new BadRequestException(
+        'Phiếu bảo trì đã hoàn thành không thể đổi trạng thái.',
+      );
+    }
+
+    const machineryId = dto.machinery ?? String(existing.machinery);
+
+    if (dto.status === MaintenanceStatus.InProgress) {
+      const activeAssignment = await this.assignmentModel.exists({
+        machinery: machineryId,
+        status: AssignmentStatus.Active,
+      });
+
+      if (activeAssignment) {
+        throw new BadRequestException(
+          'Thiết bị đang có phiếu điều phối hoạt động, không thể chuyển sang đang bảo trì.',
+        );
+      }
+    }
+
     const updateData = {
       ...dto,
       completedAt:
@@ -185,8 +210,11 @@ export class MaintenanceService {
       .populate('technician', 'fullName email role')
       .lean();
 
-    const machineryId = dto.machinery ?? String(existing.machinery);
-    await this.syncMachineryMaintenanceStatus(machineryId);
+    await this.syncMachineryMaintenanceStatus(String(existing.machinery));
+
+    if (machineryId !== String(existing.machinery)) {
+      await this.syncMachineryMaintenanceStatus(machineryId);
+    }
 
     return updated;
   }
@@ -220,9 +248,62 @@ export class MaintenanceService {
       return;
     }
 
-    await this.machineryModel.findOneAndUpdate(
-      { _id: machineryId, status: MachineryStatus.Maintenance },
-      { status: MachineryStatus.Available },
-    );
+    const activeAssignment = await this.assignmentModel.exists({
+      machinery: machineryId,
+      status: AssignmentStatus.Active,
+    });
+
+    await this.machineryModel.findByIdAndUpdate(machineryId, {
+      status: activeAssignment
+        ? MachineryStatus.Rented
+        : MachineryStatus.Available,
+    });
+  }
+
+  private async findMaintenanceLogs(
+    filter: Record<string, any>,
+    sort: string,
+    sortObj: Record<string, 1 | -1>,
+    skip: number,
+    limit: number,
+  ) {
+    if (sort !== 'statusPriority') {
+      return this.maintenanceLogModel
+        .find(filter)
+        .sort(sortObj)
+        .skip(skip)
+        .limit(limit)
+        .populate('machinery')
+        .populate('technician', 'fullName email role')
+        .lean();
+    }
+
+    const data = await this.maintenanceLogModel
+      .aggregate([
+        { $match: filter },
+        {
+          $addFields: {
+            statusRank: {
+              $switch: {
+                branches: [
+                  { case: { $eq: ['$status', MaintenanceStatus.Pending] }, then: 0 },
+                  { case: { $eq: ['$status', MaintenanceStatus.InProgress] }, then: 1 },
+                  { case: { $eq: ['$status', MaintenanceStatus.Completed] }, then: 2 },
+                ],
+                default: 3,
+              },
+            },
+          },
+        },
+        { $sort: { statusRank: 1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ])
+      .exec();
+
+    return this.maintenanceLogModel.populate(data, [
+      { path: 'machinery' },
+      { path: 'technician', select: 'fullName email role' },
+    ]);
   }
 }

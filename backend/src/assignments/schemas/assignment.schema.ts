@@ -5,7 +5,6 @@ import { User } from '../../users/schemas/user.schema';
 
 export enum AssignmentStatus {
   Pending = 'PENDING',
-  InTransit = 'IN_TRANSIT',
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
 }
