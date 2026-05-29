@@ -681,7 +681,7 @@ async function seed() {
         endDate.setDate(startDate.getDate() + 10);
       } else {
         // Third assignment: Current status relative to May 29, 2026
-        const rand = (mIdx + j) % 3;
+        const rand = (mIdx + 1) % 3;
         if (rand === 0) {
           status = 'PENDING';
           // PENDING: starts 2 to 10 days in the future

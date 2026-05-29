@@ -209,6 +209,8 @@ export default function AssignmentsPage() {
         ...(debouncedSearch ? { search: debouncedSearch } : {}),
         ...(fromDate ? { startDate: fromDate } : {}),
         ...(toDate ? { endDate: toDate } : {}),
+        sort: "dispatchPriority",
+        order: "asc",
       });
       setAssignments(res.data);
       setTotalPages(res.totalPages);

@@ -72,14 +72,7 @@ export class AssignmentsService {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-      this.assignmentModel
-        .find(filter)
-        .sort(sortObj)
-        .skip(skip)
-        .limit(limit)
-        .populate('machinery')
-        .populate('dispatcher', 'fullName email')
-        .lean(),
+      this.findAssignments(filter, sort, sortObj, skip, limit),
       this.assignmentModel.countDocuments(filter),
     ]);
 
@@ -223,5 +216,90 @@ export class AssignmentsService {
         ? MachineryStatus.Rented
         : MachineryStatus.Available,
     });
+  }
+
+  private async findAssignments(
+    filter: Record<string, any>,
+    sort: string,
+    sortObj: Record<string, 1 | -1>,
+    skip: number,
+    limit: number,
+  ) {
+    if (sort !== 'dispatchPriority') {
+      return this.assignmentModel
+        .find(filter)
+        .sort(sortObj)
+        .skip(skip)
+        .limit(limit)
+        .populate('machinery')
+        .populate('dispatcher', 'fullName email')
+        .lean();
+    }
+
+    const data = await this.assignmentModel
+      .aggregate([
+        { $match: filter },
+        {
+          $lookup: {
+            from: this.machineryModel.collection.name,
+            localField: 'machinery',
+            foreignField: '_id',
+            as: 'machineryForSort',
+          },
+        },
+        {
+          $unwind: {
+            path: '$machineryForSort',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            dispatchRank: {
+              $switch: {
+                branches: [
+                  {
+                    case: {
+                      $and: [
+                        { $eq: ['$status', AssignmentStatus.Pending] },
+                        {
+                          $eq: [
+                            '$machineryForSort.status',
+                            MachineryStatus.Available,
+                          ],
+                        },
+                      ],
+                    },
+                    then: 0,
+                  },
+                  {
+                    case: { $eq: ['$status', AssignmentStatus.Pending] },
+                    then: 1,
+                  },
+                  {
+                    case: { $eq: ['$status', AssignmentStatus.Active] },
+                    then: 2,
+                  },
+                  {
+                    case: { $eq: ['$status', AssignmentStatus.Completed] },
+                    then: 3,
+                  },
+                ],
+                default: 4,
+              },
+            },
+          },
+        },
+        { $sort: { dispatchRank: 1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        { $project: { machineryForSort: 0, dispatchRank: 0 } },
+      ])
+      .exec();
+
+    return this.assignmentModel.populate(data, [
+      { path: 'machinery' },
+      { path: 'dispatcher', select: 'fullName email' },
+    ]);
   }
 }
