@@ -160,6 +160,19 @@ export default function AssignmentsPage() {
   
   // Voucher Detail Modal State
   const [selectedAssignment, setSelectedAssignment] = useState<AssignmentItem | null>(null);
+  const [tempStatus, setTempStatus] = useState<string>("");
+  const [tempEndDate, setTempEndDate] = useState<string | undefined>(undefined);
+  const [savingStatus, setSavingStatus] = useState(false);
+
+  useEffect(() => {
+    if (selectedAssignment) {
+      setTempStatus(selectedAssignment.status);
+      setTempEndDate(selectedAssignment.endDate);
+    } else {
+      setTempStatus("");
+      setTempEndDate(undefined);
+    }
+  }, [selectedAssignment]);
 
   useEffect(() => {
     setJumpPage(currentPage.toString());
@@ -638,22 +651,21 @@ export default function AssignmentsPage() {
                         {user?.role === "ADMIN" ? (
                           <div className="relative mt-1 block">
                             <select
-                              value={selectedAssignment.status}
-                              onChange={async (e) => {
+                              value={tempStatus}
+                              onChange={(e) => {
                                 const newStatus = e.target.value;
-                                try {
-                                  const updated = await assignmentApi.update(selectedAssignment._id, {
-                                    status: newStatus,
-                                  });
-                                  setSelectedAssignment(updated);
-                                  fetchData();
-                                } catch (err) {
-                                  alert("Lỗi khi cập nhật trạng thái: " + (err instanceof Error ? err.message : String(err)));
+                                setTempStatus(newStatus);
+                                if (newStatus === "ACTIVE") {
+                                  setTempEndDate(undefined);
+                                } else if (newStatus === "COMPLETED") {
+                                  setTempEndDate(new Date().toISOString());
                                 }
                               }}
                               className="h-8 rounded-lg border border-slate-200 bg-white px-2 pr-7 text-xs font-bold text-slate-800 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 appearance-none cursor-pointer"
                             >
-                              <option value="PENDING">Chờ xử lý</option>
+                              <option value="PENDING" disabled={selectedAssignment.status !== "PENDING"}>
+                                Chờ xử lý
+                              </option>
                               <option value="IN_TRANSIT">Đang di chuyển</option>
                               <option value="ACTIVE">Đang hoạt động</option>
                               <option value="COMPLETED">Hoàn thành</option>
@@ -687,9 +699,9 @@ export default function AssignmentsPage() {
                       <div>
                         <p className="text-xs font-bold text-slate-400">Ngày kết thúc dự kiến</p>
                         <p className="font-semibold text-slate-900 mt-0.5">
-                          {selectedAssignment.endDate
-                            ? new Date(selectedAssignment.endDate).toLocaleDateString("vi-VN")
-                            : "Đang tiến hành"}
+                          {tempEndDate
+                            ? new Date(tempEndDate).toLocaleDateString("vi-VN")
+                            : "Đang diễn ra"}
                         </p>
                       </div>
                     </div>
@@ -768,24 +780,59 @@ export default function AssignmentsPage() {
 
             </div>
 
-            {/* Modal Footer */}
-            <div className="border-t border-slate-100 bg-slate-50 px-6 py-4 flex justify-end gap-2 shrink-0">
-              <button
-                onClick={() => setSelectedAssignment(null)}
-                className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
-              >
-                Đóng
-              </button>
-              <button
-                onClick={() => {
-                  window.print();
-                }}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white hover:bg-sky-800 transition"
-              >
-                <Printer className="size-4" />
-                In phiếu
-              </button>
-            </div>
+             {/* Modal Footer */}
+             <div className="border-t border-slate-100 bg-slate-50 px-6 py-4 flex justify-end gap-2 shrink-0">
+               <button
+                 onClick={() => setSelectedAssignment(null)}
+                 className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+               >
+                 Đóng
+               </button>
+
+               {user?.role === "ADMIN" && (
+                 <button
+                   disabled={savingStatus || (tempStatus === selectedAssignment.status && tempEndDate === selectedAssignment.endDate)}
+                   onClick={async () => {
+                     setSavingStatus(true);
+                     try {
+                       const payload: Record<string, any> = {
+                         status: tempStatus,
+                       };
+                       if (tempStatus === "ACTIVE") {
+                         payload.endDate = null;
+                       } else if (tempStatus === "COMPLETED") {
+                         payload.endDate = tempEndDate || new Date().toISOString();
+                       }
+                       const updated = await assignmentApi.update(selectedAssignment._id, payload);
+                       setSelectedAssignment(updated);
+                       fetchData();
+                       alert("Đã lưu thay đổi trạng thái phiếu điều phối thành công!");
+                     } catch (err) {
+                       alert("Lỗi khi lưu trạng thái: " + (err instanceof Error ? err.message : String(err)));
+                     } finally {
+                       setSavingStatus(false);
+                     }
+                   }}
+                   className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition disabled:opacity-50"
+                 >
+                   {savingStatus ? (
+                     <Loader2 className="size-4 animate-spin" />
+                   ) : (
+                     "Lưu"
+                   )}
+                 </button>
+               )}
+
+               <button
+                 onClick={() => {
+                   window.print();
+                 }}
+                 className="inline-flex items-center gap-1.5 rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white hover:bg-sky-800 transition"
+               >
+                 <Printer className="size-4" />
+                 In phiếu
+               </button>
+             </div>
 
           </div>
         </div>
