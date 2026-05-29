@@ -502,29 +502,34 @@ async function seed() {
   await Promise.all([
     Assignment.deleteMany({}),
     MaintenanceLog.deleteMany({}),
-    Machinery.deleteMany({}),
-    Category.deleteMany({}),
-    User.deleteMany({}),
   ]);
-  console.log('Cleared old seed data.');
+  console.log('Cleared old assignments and maintenance logs.');
 
-  const categories = await Category.insertMany(
-    categorySeeds.map(([name, description]) => ({ name, description })),
-  );
+  // Smart Upsert Categories
+  const categories = [];
+  for (const [name, description] of categorySeeds) {
+    let cat = await Category.findOne({ name });
+    if (!cat) {
+      cat = await Category.create({ name, description });
+      console.log(`Created category: ${name}`);
+    }
+    categories.push(cat);
+  }
   const categoryByName = new Map(
     categories.map((category) => [category.name, category]),
   );
 
+  // Smart Upsert Users
   const passwordHash = await bcrypt.hash('Gnoud@123456', 12);
-  const users = await User.insertMany(
-    primaryUsers.map(([fullName, email, role]) => ({
-      fullName,
-      email,
-      role,
-      status: 'ACTIVE',
-      passwordHash,
-    })),
-  );
+  const users = [];
+  for (const [fullName, email, role] of primaryUsers) {
+    let u = await User.findOne({ email });
+    if (!u) {
+      u = await User.create({ fullName, email, role, status: 'ACTIVE', passwordHash });
+      console.log(`Created user: ${email}`);
+    }
+    users.push(u);
+  }
   const technicians = users.filter((user) => user.role === 'TECHNICIAN');
   const dispatchers = users.filter((user) => user.role === 'DISPATCHER');
 
@@ -542,7 +547,8 @@ async function seed() {
     'MAINTENANCE', 'MAINTENANCE', 'MAINTENANCE',
   ];
 
-  const machineriesData = [];
+  // Smart Upsert Machinery
+  const machineries = [];
   for (let i = 0; i < 250; i++) {
     const rng1 = seededRandom(i * 7 + 1);
     const rng2 = seededRandom(i * 7 + 2);
@@ -568,24 +574,45 @@ async function seed() {
     const specs = specGen(rng4, rng5, rng6, rng7);
 
     const imgList = CATEGORY_IMAGES[categoryName];
-    const imageUrl = modelImages[name] || imgList[i % imgList.length];
+    const defaultImageUrl = modelImages[name] || imgList[i % imgList.length];
 
-    machineriesData.push({
-      name,
-      serialNumber,
-      manufacturer,
-      operatingHours,
-      fuelConsumption,
-      purchaseYear,
-      status,
-      category: categoryByName.get(categoryName)?._id,
-      location,
-      specs,
-      imageUrl,
-    });
+    let mach = await Machinery.findOne({ serialNumber });
+    if (mach) {
+      const updateData = {
+        name,
+        manufacturer,
+        operatingHours,
+        fuelConsumption,
+        purchaseYear,
+        status,
+        category: categoryByName.get(categoryName)?._id,
+        location,
+        specs
+      };
+      // ONLY update the imageUrl if it doesn't already exist OR is currently set to an Unsplash fallback URL
+      if (mach.imageUrl && !mach.imageUrl.includes('unsplash.com')) {
+        // preserve existing custom image!
+      } else {
+        updateData.imageUrl = defaultImageUrl;
+      }
+      mach = await Machinery.findOneAndUpdate({ serialNumber }, updateData, { new: true });
+    } else {
+      mach = await Machinery.create({
+        name,
+        serialNumber,
+        manufacturer,
+        operatingHours,
+        fuelConsumption,
+        purchaseYear,
+        status,
+        category: categoryByName.get(categoryName)?._id,
+        location,
+        specs,
+        imageUrl: defaultImageUrl,
+      });
+    }
+    machineries.push(mach);
   }
-
-  const machineries = await Machinery.insertMany(machineriesData);
 
   const now = new Date();
   const assignments = [];

@@ -24,6 +24,7 @@ import {
   getStoredUser,
   assignmentApi,
   type AssignmentItem,
+  type MachineryItem,
 } from "@/lib/api";
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -59,6 +60,84 @@ const getCategoryImage = (item: any) => {
     return "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=200";
   }
   return "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=200";
+};
+
+// Global failed url cache
+const failedUrls = new Set<string>();
+
+const ImageWithFallback = ({
+  item,
+  machineries,
+  getCategoryImage,
+  className = "size-10 rounded object-cover border border-slate-200/60 shadow-sm bg-slate-100",
+}: {
+  item: any;
+  machineries: any[];
+  getCategoryImage: (item: any) => string;
+  className?: string;
+}) => {
+  const initialSrc = getCategoryImage(item);
+  const [imgSrc, setImgSrc] = useState(initialSrc);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    const currentSrc = getCategoryImage(item);
+    if (failedUrls.has(currentSrc)) {
+      triggerFallback(currentSrc);
+    } else {
+      setImgSrc(currentSrc);
+      setFailed(false);
+    }
+  }, [item, getCategoryImage]);
+
+  const triggerFallback = (failedSrc: string) => {
+    failedUrls.add(failedSrc);
+    setFailed(true);
+
+    if (!item) return;
+    const categoryName = item.category?.name;
+    // Find another machinery in the list with the same category that has a different imageUrl that has not failed
+    const sibling = machineries.find(
+      (m) =>
+        m &&
+        m._id !== item._id &&
+        m.category?.name === categoryName &&
+        m.imageUrl &&
+        m.imageUrl !== failedSrc &&
+        !failedUrls.has(m.imageUrl)
+    );
+
+    if (sibling && sibling.imageUrl) {
+      console.log("Fallback for " + item.name + " -> sibling " + sibling.name + ": " + sibling.imageUrl);
+      setImgSrc(sibling.imageUrl);
+    } else {
+      // Fallback to Unsplash category image
+      const catName = (categoryName || "").toLowerCase();
+      let fallbackUrl = "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=200";
+      if (catName.includes("xúc") || catName.includes("cuốc") || catName.includes("đào")) {
+        fallbackUrl = "https://images.unsplash.com/photo-1579684389782-64d84b5e9053?auto=format&fit=crop&q=80&w=200";
+      } else if (catName.includes("cẩu") || catName.includes("nâng")) {
+        fallbackUrl = "https://images.unsplash.com/photo-1542362567-b07eac79094d?auto=format&fit=crop&q=80&w=200";
+      } else if (catName.includes("ủi") || catName.includes("lu")) {
+        fallbackUrl = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=200";
+      }
+      setImgSrc(fallbackUrl);
+    }
+  };
+
+  const handleError = () => {
+    if (failed) return;
+    triggerFallback(imgSrc);
+  };
+
+  return (
+    <img
+      src={imgSrc}
+      alt={item?.name || "Thiết bị"}
+      onError={handleError}
+      className={className}
+    />
+  );
 };
 
 export default function AssignmentsPage() {
@@ -326,9 +405,11 @@ export default function AssignmentsPage() {
                             </td>
                             <td className="px-4 py-4">
                               <div className="flex items-center gap-3">
-                                <div
-                                  className="size-10 rounded bg-slate-100 bg-cover bg-center border border-slate-200/60 shadow-sm"
-                                  style={{ backgroundImage: `url(${getCategoryImage(item.machinery)})` }}
+                                <ImageWithFallback
+                                  item={item.machinery}
+                                  machineries={assignments.map((a) => a.machinery).filter(Boolean)}
+                                  getCategoryImage={getCategoryImage}
+                                  className="size-10 rounded object-cover border border-slate-200/60 shadow-sm bg-slate-100 animate-fade-in"
                                 />
                                 <div>
                                   <p className="font-bold text-slate-950">
@@ -608,9 +689,11 @@ export default function AssignmentsPage() {
                   
                   {selectedAssignment.machinery ? (
                     <div className="border border-slate-100 rounded-2xl overflow-hidden bg-slate-50/50 p-4 space-y-3">
-                      <div
-                        className="h-28 rounded-xl bg-slate-200 bg-cover bg-center border border-slate-200 shadow-sm"
-                        style={{ backgroundImage: `url(${getCategoryImage(selectedAssignment.machinery)})` }}
+                      <ImageWithFallback
+                        item={selectedAssignment.machinery}
+                        machineries={assignments.map((a) => a.machinery).filter(Boolean)}
+                        getCategoryImage={getCategoryImage}
+                        className="h-28 w-full rounded-xl object-cover border border-slate-200 shadow-sm bg-slate-200"
                       />
                       <div>
                         <p className="font-bold text-slate-900 text-sm">
