@@ -365,26 +365,6 @@ export default function NewAssignmentPage() {
                     </span>
                   </label>
                 </div>
-
-                <label className="block">
-                  <span className="text-sm font-medium text-slate-700">
-                    Trạng thái ban đầu <span className="text-red-500">*</span>
-                  </span>
-                  <span className="relative mt-2 block">
-                    <select
-                      className="h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      required
-                    >
-                      <option value="PENDING">Chờ xử lý (Chờ duyệt)</option>
-                      <option value="IN_TRANSIT">Đang di chuyển</option>
-                      <option value="ACTIVE">Đang hoạt động</option>
-                      <option value="COMPLETED">Hoàn thành</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
-                  </span>
-                </label>
               </div>
             </FormCard>
           </div>
