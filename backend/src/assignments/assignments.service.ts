@@ -139,6 +139,19 @@ export class AssignmentsService {
 
     const targetMachineryId = dto.machinery ?? String(existing.machinery);
 
+    if (dto.status && dto.status !== existing.status) {
+      const activeMaintenance = await this.maintenanceLogModel.exists({
+        machinery: targetMachineryId,
+        status: MaintenanceStatus.InProgress,
+      });
+
+      if (activeMaintenance) {
+        throw new BadRequestException(
+          'Thiết bị đang bảo trì, không thể thay đổi trạng thái phiếu điều phối.',
+        );
+      }
+    }
+
     if (dto.status === AssignmentStatus.Active) {
       await this.assertNoInProgressMaintenance(targetMachineryId);
     }

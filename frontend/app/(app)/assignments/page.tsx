@@ -658,7 +658,9 @@ export default function AssignmentsPage() {
                       <Truck className="size-4 text-slate-400 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-400">Trạng thái vận chuyển</p>
-                        {user?.role === "ADMIN" && selectedAssignment.status !== "COMPLETED" ? (
+                        {user?.role === "ADMIN" &&
+                        selectedAssignment.status !== "COMPLETED" &&
+                        selectedAssignment.machinery?.status !== "MAINTENANCE" ? (
                           <div className="relative mt-1 block">
                             <select
                               value={tempStatus}
@@ -754,22 +756,20 @@ export default function AssignmentsPage() {
                         <p className="text-xs text-slate-500">
                           Hãng sản xuất: {selectedAssignment.machinery.manufacturer || "—"}
                         </p>
-                        {selectedAssignment.status === "PENDING" && (
-                          <div className="mt-3">
-                            <p className="mb-1 text-xs font-bold text-slate-400">
-                              Trạng thái hiện tại của thiết bị
-                            </p>
-                            <span
-                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
-                                MACHINERY_STATUS_MAP[selectedAssignment.machinery.status]?.className ??
-                                "border-slate-200 bg-slate-50 text-slate-700"
-                              }`}
-                            >
-                              {MACHINERY_STATUS_MAP[selectedAssignment.machinery.status]?.label ??
-                                selectedAssignment.machinery.status}
-                            </span>
-                          </div>
-                        )}
+                        <div className="mt-3">
+                          <p className="mb-1 text-xs font-bold text-slate-400">
+                            Trạng thái hiện tại của thiết bị
+                          </p>
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${
+                              MACHINERY_STATUS_MAP[selectedAssignment.machinery.status]?.className ??
+                              "border-slate-200 bg-slate-50 text-slate-700"
+                            }`}
+                          >
+                            {MACHINERY_STATUS_MAP[selectedAssignment.machinery.status]?.label ??
+                              selectedAssignment.machinery.status}
+                          </span>
+                        </div>
                       </div>
                       
                       {/* Short specs list */}
@@ -814,7 +814,9 @@ export default function AssignmentsPage() {
                  Đóng
                </button>
 
-               {user?.role === "ADMIN" && selectedAssignment.status !== "COMPLETED" && (
+               {user?.role === "ADMIN" &&
+                selectedAssignment.status !== "COMPLETED" &&
+                selectedAssignment.machinery?.status !== "MAINTENANCE" && (
                  <button
                    disabled={savingStatus || (tempStatus === selectedAssignment.status && tempEndDate === selectedAssignment.endDate)}
                    onClick={async () => {

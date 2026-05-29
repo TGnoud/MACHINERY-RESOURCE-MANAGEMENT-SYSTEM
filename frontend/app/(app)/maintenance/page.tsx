@@ -311,28 +311,30 @@ export default function MaintenancePage() {
                 value={searchTerm}
               />
             </label>
-            <button
-              aria-label="Bộ lọc"
-              className={[
-                "grid size-10 place-items-center rounded-lg border transition",
-                showFilters
-                  ? "border-sky-500 bg-sky-50 text-sky-700"
-                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
-              ].join(" ")}
-              onClick={() => setShowFilters((value) => !value)}
-              type="button"
-            >
-              <Filter className="size-4" />
-            </button>
-            <button
-              aria-label="Download CSV"
-              className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
-              onClick={handleDownloadCSV}
-              title="Download CSV"
-              type="button"
-            >
-              <Download className="size-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                aria-label="Bộ lọc"
+                className={[
+                  "grid size-10 place-items-center rounded-lg border transition",
+                  showFilters
+                    ? "border-sky-500 bg-sky-50 text-sky-700"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+                ].join(" ")}
+                onClick={() => setShowFilters((value) => !value)}
+                type="button"
+              >
+                <Filter className="size-4" />
+              </button>
+              <button
+                aria-label="Download CSV"
+                className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                onClick={handleDownloadCSV}
+                title="Download CSV"
+                type="button"
+              >
+                <Download className="size-4" />
+              </button>
+            </div>
           </div>
 
           {showFilters ? (
