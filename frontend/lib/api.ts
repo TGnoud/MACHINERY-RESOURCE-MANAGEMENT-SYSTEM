@@ -381,3 +381,79 @@ export function uploadImage(file: File) {
     auth: true,
   });
 }
+
+// --- Assignment Types ---
+
+export type AssignmentItem = {
+  _id: string;
+  machinery: MachineryItem | null;
+  dispatcher: { _id: string; fullName: string; email: string } | null;
+  destination: string;
+  startDate: string;
+  endDate?: string;
+  status: 'PENDING' | 'IN_TRANSIT' | 'ACTIVE' | 'COMPLETED';
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AssignmentListResponse = {
+  data: AssignmentItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type AssignmentQueryParams = {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+  sort?: string;
+  order?: 'asc' | 'desc';
+};
+
+export const assignmentApi = {
+  getAll(params?: AssignmentQueryParams) {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          query.set(key, String(value));
+        }
+      });
+    }
+    const qs = query.toString();
+    return apiFetch<AssignmentListResponse>(
+      `/api/v1/assignments${qs ? `?${qs}` : ''}`,
+      { auth: true },
+    );
+  },
+  getById(id: string) {
+    return apiFetch<AssignmentItem>(`/api/v1/assignments/${id}`, {
+      auth: true,
+    });
+  },
+  create(data: Record<string, unknown>) {
+    return apiFetch<AssignmentItem>('/api/v1/assignments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  update(id: string, data: Record<string, unknown>) {
+    return apiFetch<AssignmentItem>(`/api/v1/assignments/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  remove(id: string) {
+    return apiFetch<{ message: string }>(`/api/v1/assignments/${id}`, {
+      method: 'DELETE',
+      auth: true,
+    });
+  },
+};

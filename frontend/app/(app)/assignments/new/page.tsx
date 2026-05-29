@@ -11,25 +11,104 @@ import {
   MapPin,
   Route,
   SendHorizonal,
+  Loader2,
 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 
 import { Card, PagePad } from "../../_components/ui";
-import { getStoredUser } from "@/lib/api";
+import {
+  getStoredUser,
+  machineryApi,
+  assignmentApi,
+  type MachineryItem,
+} from "@/lib/api";
 
 export default function NewAssignmentPage() {
   const router = useRouter();
+  const [user] = useState(() => getStoredUser());
   const [isAllowed] = useState(() => {
-    const user = getStoredUser();
-
     return !user || user.role === "ADMIN" || user.role === "DISPATCHER";
   });
+
+  // Machinery options from API
+  const [machineries, setMachineries] = useState<MachineryItem[]>([]);
+  const [loadingMachineries, setLoadingMachineries] = useState(true);
+
+  // Form States
+  const [machineryId, setMachineryId] = useState("");
+  const [destination, setDestination] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [status, setStatus] = useState("PENDING");
+  const [notes, setNotes] = useState("");
+  
+  // Status feedback states
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAllowed) {
       router.replace("/403");
     }
   }, [isAllowed, router]);
+
+  // Fetch machinery options on mount
+  useEffect(() => {
+    async function fetchMachinery() {
+      try {
+        // Fetch all machineries (up to 1000) so dispatcher can choose
+        const res = await machineryApi.getAll({ limit: 1000 });
+        setMachineries(res.data);
+      } catch (err) {
+        console.error("Lỗi khi tải danh sách thiết bị:", err);
+      } finally {
+        setLoadingMachineries(false);
+      }
+    }
+    if (isAllowed) {
+      fetchMachinery();
+    }
+  }, [isAllowed]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!machineryId) {
+      setError("Vui lòng chọn thiết bị cần điều động.");
+      return;
+    }
+    if (!destination.trim()) {
+      setError("Vui lòng nhập điểm đến / công trường.");
+      return;
+    }
+    if (!startDate) {
+      setError("Vui lòng chọn ngày bắt đầu.");
+      return;
+    }
+
+    setSaving(true);
+    setError(null);
+
+    try {
+      const payload: Record<string, any> = {
+        machinery: machineryId,
+        dispatcher: user?.id,
+        destination: destination.trim(),
+        startDate,
+        status,
+      };
+
+      if (endDate) {
+        payload.endDate = endDate;
+      }
+
+      await assignmentApi.create(payload);
+      router.push("/assignments");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tạo phiếu điều phối.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (!isAllowed) {
     return <div className="min-h-screen bg-slate-50" />;
@@ -39,7 +118,9 @@ export default function NewAssignmentPage() {
     <PagePad>
       <div className="mx-auto max-w-7xl">
         <nav className="mb-7 flex flex-wrap items-center gap-2 text-base font-medium text-slate-600">
-          <span>Trang chủ</span>
+          <Link className="transition hover:text-sky-700" href="/dashboard">
+            Trang chủ
+          </Link>
           <ChevronDown className="size-4 -rotate-90 text-slate-400" />
           <Link className="transition hover:text-sky-700" href="/assignments">
             Phân bổ & Điều phối
@@ -53,57 +134,124 @@ export default function NewAssignmentPage() {
             Tạo phiếu điều phối mới
           </h1>
           <p className="mt-3 max-w-4xl text-lg leading-8 text-slate-600">
-            Nhập thông tin chi tiết để điều động thiết bị đến công trường hoặc
-            trạm làm việc.
+            Nhập thông tin chi tiết để điều động thiết bị đến công trường hoặc trạm làm việc.
           </p>
         </div>
 
-        <form className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_370px]">
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 font-semibold">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_370px]">
           <div className="space-y-6">
             <FormCard icon={Info} iconTone="sky" title="Thông tin chung">
               <div className="grid gap-5 md:grid-cols-2">
-                <TextField label="Mã phiếu" value="DP-2023-AUTO" />
-                <TextField label="Người điều phối" value="Nguyễn Văn Quản lý" />
+                <TextField label="Mã phiếu" value="ASG-AUTO (Tự sinh)" />
+                <TextField label="Người điều phối" value={user?.fullName || "Chưa đăng nhập"} />
               </div>
 
               <div className="mt-6">
-                <SelectField
-                  label="Thiết bị cần điều động"
-                  options={[
-                    "Chọn thiết bị từ danh sách khả dụng...",
-                    "Cẩu tháp Liebherr 112 EC-H",
-                    "Xe nâng Komatsu 3 Tấn",
-                    "Xe tải Hino 15 Tấn",
-                    "Máy xúc lật Volvo L120",
-                  ]}
-                  required
-                />
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">
+                    Thiết bị cần điều động <span className="text-red-500">*</span>
+                  </span>
+                  <span className="relative mt-2 block">
+                    <select
+                      className="h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                      value={machineryId}
+                      onChange={(e) => setMachineryId(e.target.value)}
+                      required
+                    >
+                      <option value="">
+                        {loadingMachineries ? "Đang tải danh sách..." : "Chọn thiết bị từ danh sách..."}
+                      </option>
+                      {machineries.map((m) => (
+                        <option key={m._id} value={m._id}>
+                          {m.name} ({m.serialNumber}) — Trạng thái: {
+                            m.status === "AVAILABLE" ? "Sẵn sàng" : m.status === "RENTED" ? "Đang thuê" : "Bảo trì"
+                          }
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
+                  </span>
+                </label>
               </div>
             </FormCard>
 
             <FormCard icon={Route} iconTone="amber" title="Chi tiết điều phối">
               <div className="space-y-6">
-                <TextInput
-                  icon={MapPin}
-                  label="Điểm đến / Công trường"
-                  placeholder="Nhập địa chỉ, tọa độ hoặc tên dự án..."
-                  required
-                />
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">
+                    Điểm đến / Công trường <span className="text-red-500">*</span>
+                  </span>
+                  <span className="relative mt-2 block">
+                    <MapPin className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
+                    <input
+                      className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-12 pr-4 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                      placeholder="Nhập địa chỉ hoặc tên công trường dự án..."
+                      type="text"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      required
+                    />
+                  </span>
+                </label>
 
                 <div className="grid gap-5 md:grid-cols-2">
-                  <DateField label="Ngày bắt đầu" required />
-                  <DateField label="Ngày kết thúc dự kiến" />
+                  <label className="block">
+                    <span className="text-sm font-medium text-slate-700">
+                      Ngày bắt đầu <span className="text-red-500">*</span>
+                    </span>
+                    <span className="relative mt-2 block">
+                      <input
+                        className="h-12 w-full rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        required
+                      />
+                      <CalendarDays className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-700" />
+                    </span>
+                  </label>
+
+                  <label className="block">
+                    <span className="text-sm font-medium text-slate-700">
+                      Ngày kết thúc dự kiến
+                    </span>
+                    <span className="relative mt-2 block">
+                      <input
+                        className="h-12 w-full rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                      <CalendarDays className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-700" />
+                    </span>
+                  </label>
                 </div>
 
-                <SelectField
-                  label="Trạng thái ban đầu"
-                  options={[
-                    "Đang xử lý (Chờ duyệt)",
-                    "Đang di chuyển",
-                    "Đang hoạt động",
-                  ]}
-                  required
-                />
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">
+                    Trạng thái ban đầu <span className="text-red-500">*</span>
+                  </span>
+                  <span className="relative mt-2 block">
+                    <select
+                      className="h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                      value={status}
+                      onChange={(e) => setStatus(e.target.value)}
+                      required
+                    >
+                      <option value="PENDING">Chờ xử lý (Chờ duyệt)</option>
+                      <option value="IN_TRANSIT">Đang di chuyển</option>
+                      <option value="ACTIVE">Đang hoạt động</option>
+                      <option value="COMPLETED">Hoàn thành</option>
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
+                  </span>
+                </label>
               </div>
             </FormCard>
           </div>
@@ -113,14 +261,14 @@ export default function NewAssignmentPage() {
               <label className="block">
                 <span className="flex items-center justify-between gap-4 text-sm font-medium text-slate-700">
                   <span>Nội dung ghi chú</span>
-                  <span className="text-xs font-medium text-slate-500">
-                    Tùy chọn
-                  </span>
+                  <span className="text-xs font-medium text-slate-500">Tùy chọn</span>
                 </span>
                 <textarea
                   className="mt-2 min-h-48 w-full resize-none rounded-lg border border-slate-200 bg-white p-4 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-                  placeholder="Nhập hướng dẫn đặc biệt cho tài xế, lưu ý an toàn, hoặc thông tin liên hệ tại công trường..."
+                  placeholder="Nhập hướng dẫn đặc biệt cho tài xế hoặc thông tin công trường..."
                   rows={7}
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                 />
               </label>
             </FormCard>
@@ -131,10 +279,15 @@ export default function NewAssignmentPage() {
               </h2>
               <div className="mt-6 space-y-4">
                 <button
-                  className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-sky-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800"
-                  type="button"
+                  className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg bg-sky-700 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-800 disabled:opacity-50"
+                  type="submit"
+                  disabled={saving}
                 >
-                  <SendHorizonal className="size-5" />
+                  {saving ? (
+                    <Loader2 className="size-5 animate-spin" />
+                  ) : (
+                    <SendHorizonal className="size-5" />
+                  )}
                   Tạo phiếu điều phối
                 </button>
                 <Link
@@ -182,10 +335,6 @@ function FormCard({
   );
 }
 
-function RequiredMark() {
-  return <span className="text-red-500">*</span>;
-}
-
 function TextField({ label, value }: { label: string; value: string }) {
   return (
     <label className="block">
@@ -196,91 +345,6 @@ function TextField({ label, value }: { label: string; value: string }) {
         type="text"
         value={value}
       />
-    </label>
-  );
-}
-
-function TextInput({
-  icon: Icon,
-  label,
-  placeholder,
-  required,
-}: {
-  icon?: ComponentType<{ className?: string }>;
-  label: string;
-  placeholder: string;
-  required?: boolean;
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-medium text-slate-700">
-        {label} {required ? <RequiredMark /> : null}
-      </span>
-      <span className="relative mt-2 block">
-        {Icon ? (
-          <Icon className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
-        ) : null}
-        <input
-          className={[
-            "h-12 w-full rounded-lg border border-slate-200 bg-white pr-4 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10",
-            Icon ? "pl-12" : "pl-4",
-          ].join(" ")}
-          placeholder={placeholder}
-          type="text"
-        />
-      </span>
-    </label>
-  );
-}
-
-function SelectField({
-  label,
-  options,
-  required,
-}: {
-  label: string;
-  options: string[];
-  required?: boolean;
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-medium text-slate-700">
-        {label} {required ? <RequiredMark /> : null}
-      </span>
-      <span className="relative mt-2 block">
-        <select
-          className="h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-          defaultValue={options[0]}
-        >
-          {options.map((option) => (
-            <option key={option}>{option}</option>
-          ))}
-        </select>
-        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
-      </span>
-    </label>
-  );
-}
-
-function DateField({
-  label,
-  required,
-}: {
-  label: string;
-  required?: boolean;
-}) {
-  return (
-    <label className="block">
-      <span className="text-sm font-medium text-slate-700">
-        {label} {required ? <RequiredMark /> : null}
-      </span>
-      <span className="relative mt-2 block">
-        <input
-          className="h-12 w-full rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-          type="date"
-        />
-        <CalendarDays className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-700" />
-      </span>
     </label>
   );
 }

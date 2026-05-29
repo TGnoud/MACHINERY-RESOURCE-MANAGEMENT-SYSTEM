@@ -588,21 +588,55 @@ async function seed() {
   const machineries = await Machinery.insertMany(machineriesData);
 
   const now = new Date();
-  const assignments = Array.from({ length: 20 }, (_, index) => {
-    const startDate = addMonths(now, -Math.floor(index / 4));
-    startDate.setDate(3 + (index % 24));
+  const assignments = [];
+  machineries.forEach((m, mIdx) => {
+    // Generate exactly 3 assignments per machinery (750 in total)
+    for (let j = 0; j < 3; j++) {
+      const startDate = new Date(now);
+      if (j === 0) {
+        startDate.setMonth(now.getMonth() - 8 - (mIdx % 4));
+      } else if (j === 1) {
+        startDate.setMonth(now.getMonth() - 3 - (mIdx % 3));
+      } else {
+        startDate.setMonth(now.getMonth() - 1 + (mIdx % 2));
+      }
+      startDate.setDate(1 + (mIdx * 7 + j * 11) % 28);
 
-    return {
-      machinery: machineries[index % machineries.length]._id,
-      dispatcher: dispatchers[index % dispatchers.length]._id,
-      destination: pick(destinations, index),
-      startDate,
-      endDate: addMonths(startDate, index % 5 === 0 ? 2 : 1),
-      status: pick(['PENDING', 'IN_TRANSIT', 'ACTIVE', 'COMPLETED'], index),
-      _id: objectId(),
-      createdAt: startDate,
-      updatedAt: startDate,
-    };
+      const endDate = new Date(startDate);
+      endDate.setMonth(startDate.getMonth() + 1 + (mIdx % 2));
+      endDate.setDate(startDate.getDate() + 10);
+
+      let status = 'COMPLETED';
+      if (j === 2) {
+        const rand = (mIdx + j) % 4;
+        if (rand === 0) status = 'PENDING';
+        else if (rand === 1) status = 'IN_TRANSIT';
+        else if (rand === 2) status = 'ACTIVE';
+        else status = 'COMPLETED';
+      }
+
+      let actualEndDate = endDate;
+      if (status === 'ACTIVE' || status === 'PENDING' || status === 'IN_TRANSIT') {
+        if ((mIdx % 3) === 0) {
+          actualEndDate = undefined;
+        } else {
+          actualEndDate = new Date(now);
+          actualEndDate.setMonth(now.getMonth() + 1);
+        }
+      }
+
+      assignments.push({
+        machinery: m._id,
+        dispatcher: dispatchers[(mIdx + j) % dispatchers.length]._id,
+        destination: pick(destinations, mIdx * 3 + j),
+        startDate,
+        endDate: actualEndDate,
+        status,
+        _id: objectId(),
+        createdAt: startDate,
+        updatedAt: startDate,
+      });
+    }
   });
 
   const maintenanceLogs = Array.from({ length: 20 }, (_, index) => {

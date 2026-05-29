@@ -21,6 +21,7 @@ import {
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
+import { AssignmentsModule } from './assignments/assignments.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { UploadModule } from './upload/upload.module';
     MachineriesModule,
     CategoriesModule,
     UploadModule,
+    AssignmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
