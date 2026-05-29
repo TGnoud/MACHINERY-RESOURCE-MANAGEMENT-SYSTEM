@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import {
+  CheckCircle2,
+  Clock3,
   Download,
   Eye,
+  Filter,
   Plus,
   Search,
   Loader2,
@@ -19,12 +22,14 @@ import {
   X,
   Printer,
 } from "lucide-react";
+import type { ComponentType } from "react";
 
 import { Card, PagePad } from "../_components/ui";
 import {
   getStoredUser,
   assignmentApi,
   type AssignmentItem,
+  type AssignmentStats,
   type MachineryItem,
 } from "@/lib/api";
 
@@ -56,6 +61,13 @@ const MACHINERY_STATUS_MAP: Record<string, { label: string; className: string }>
     label: "Bảo trì",
     className: "border-rose-200 bg-rose-50 text-rose-700",
   },
+};
+
+const emptyAssignmentStats: AssignmentStats = {
+  total: 0,
+  pending: 0,
+  active: 0,
+  completed: 0,
 };
 
 const getCategoryImage = (item: any) => {
@@ -155,6 +167,7 @@ const ImageWithFallback = ({
 export default function AssignmentsPage() {
   const [user] = useState(() => getStoredUser());
   const [assignments, setAssignments] = useState<AssignmentItem[]>([]);
+  const [stats, setStats] = useState<AssignmentStats>(emptyAssignmentStats);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -167,6 +180,7 @@ export default function AssignmentsPage() {
   const [activeFilter, setActiveFilter] = useState<string>("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [jumpPage, setJumpPage] = useState("");
   
   // Voucher Detail Modal State
@@ -202,19 +216,23 @@ export default function AssignmentsPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await assignmentApi.getAll({
-        page: currentPage,
-        limit: 10,
-        ...(activeFilter ? { status: activeFilter } : {}),
-        ...(debouncedSearch ? { search: debouncedSearch } : {}),
-        ...(fromDate ? { startDate: fromDate } : {}),
-        ...(toDate ? { endDate: toDate } : {}),
-        sort: "dispatchPriority",
-        order: "asc",
-      });
+      const [res, statsRes] = await Promise.all([
+        assignmentApi.getAll({
+          page: currentPage,
+          limit: 10,
+          ...(activeFilter ? { status: activeFilter } : {}),
+          ...(debouncedSearch ? { search: debouncedSearch } : {}),
+          ...(fromDate ? { startDate: fromDate } : {}),
+          ...(toDate ? { endDate: toDate } : {}),
+          sort: "dispatchPriority",
+          order: "asc",
+        }),
+        assignmentApi.getStats(),
+      ]);
       setAssignments(res.data);
       setTotalPages(res.totalPages);
       setTotal(res.total);
+      setStats(statsRes);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi tải dữ liệu phân bổ.");
     } finally {
@@ -273,6 +291,13 @@ export default function AssignmentsPage() {
     document.body.removeChild(link);
   };
 
+  function resetFilters() {
+    setActiveFilter("");
+    setFromDate("");
+    setToDate("");
+    setCurrentPage(1);
+  }
+
   const startIndex = (currentPage - 1) * 10 + 1;
   const endIndex = Math.min(currentPage * 10, total);
 
@@ -299,77 +324,32 @@ export default function AssignmentsPage() {
           )}
         </div>
 
-        {/* Filter Card */}
-        <Card className="mb-6 p-4">
-          <div className="grid gap-4 lg:grid-cols-[1fr_200px_160px_160px_auto] lg:items-end">
-            <label className="space-y-1.5">
-              <span className="text-sm font-bold text-slate-600">Tìm kiếm</span>
-              <span className="relative block">
-                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-3 text-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition"
-                  placeholder="Nhập thiết bị, điểm đến..."
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </span>
-            </label>
-            <label className="space-y-1.5">
-              <span className="text-sm font-bold text-slate-600">Trạng thái</span>
-              <select
-                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition"
-                value={activeFilter}
-                onChange={(e) => {
-                  setActiveFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                <option value="">Tất cả trạng thái</option>
-                <option value="PENDING">Chờ xử lý</option>
-                <option value="ACTIVE">Đang hoạt động</option>
-                <option value="COMPLETED">Hoàn thành</option>
-              </select>
-            </label>
-            
-            <label className="space-y-1.5">
-              <span className="text-sm font-bold text-slate-600">Từ ngày</span>
-              <input
-                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition"
-                type="date"
-                value={fromDate}
-                onChange={(e) => {
-                  setFromDate(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </label>
-
-            <label className="space-y-1.5">
-              <span className="text-sm font-bold text-slate-600">Đến ngày</span>
-              <input
-                className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition"
-                type="date"
-                value={toDate}
-                onChange={(e) => {
-                  setToDate(e.target.value);
-                  setCurrentPage(1);
-                }}
-              />
-            </label>
-
-            <div className="flex gap-2">
-              <button
-                className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
-                title="Tải xuống"
-                type="button"
-                onClick={handleDownloadCSV}
-              >
-                <Download className="size-4" />
-              </button>
-            </div>
-          </div>
-        </Card>
+        <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <AssignmentStatCard
+            icon={FileText}
+            label="Tổng phiếu"
+            value={`${stats.total} phiếu`}
+            tone="slate"
+          />
+          <AssignmentStatCard
+            icon={Clock3}
+            label="Chờ xử lý"
+            value={`${stats.pending} phiếu`}
+            tone="amber"
+          />
+          <AssignmentStatCard
+            icon={Truck}
+            label="Đang hoạt động"
+            value={`${stats.active} phiếu`}
+            tone="sky"
+          />
+          <AssignmentStatCard
+            icon={CheckCircle2}
+            label="Hoàn thành"
+            value={`${stats.completed} phiếu`}
+            tone="emerald"
+          />
+        </div>
 
         {/* Error state */}
         {error && (
@@ -388,6 +368,104 @@ export default function AssignmentsPage() {
         {/* Data Table */}
         {!error && (
           <Card className="overflow-hidden">
+            <div className="flex flex-col gap-3 border-b border-slate-200 bg-white px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+              <label className="relative block w-full lg:w-96">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Nhập thiết bị, điểm đến..."
+                  type="text"
+                  value={searchTerm}
+                />
+              </label>
+              <div className="flex items-center gap-2">
+                <button
+                  aria-label="Bộ lọc"
+                  className={[
+                    "grid size-10 place-items-center rounded-lg border transition",
+                    showFilters
+                      ? "border-sky-500 bg-sky-50 text-sky-700"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+                  ].join(" ")}
+                  onClick={() => setShowFilters((value) => !value)}
+                  type="button"
+                >
+                  <Filter className="size-4" />
+                </button>
+                <button
+                  aria-label="Tải xuống CSV"
+                  className="grid size-10 place-items-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                  onClick={handleDownloadCSV}
+                  title="Tải xuống"
+                  type="button"
+                >
+                  <Download className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            {showFilters ? (
+              <div className="grid gap-3 border-b border-slate-200 bg-slate-50/70 px-5 py-4 md:grid-cols-2 lg:grid-cols-[200px_170px_170px_auto]">
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">
+                    Trạng thái
+                  </span>
+                  <select
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                    value={activeFilter}
+                    onChange={(event) => {
+                      setActiveFilter(event.target.value);
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="PENDING">Chờ xử lý</option>
+                    <option value="ACTIVE">Đang hoạt động</option>
+                    <option value="COMPLETED">Hoàn thành</option>
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">
+                    Từ ngày
+                  </span>
+                  <input
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                    onChange={(event) => {
+                      setFromDate(event.target.value);
+                      setCurrentPage(1);
+                    }}
+                    type="date"
+                    value={fromDate}
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-bold text-slate-600">
+                    Đến ngày
+                  </span>
+                  <input
+                    className="mt-2 h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                    onChange={(event) => {
+                      setToDate(event.target.value);
+                      setCurrentPage(1);
+                    }}
+                    type="date"
+                    value={toDate}
+                  />
+                </label>
+
+                <button
+                  className="h-10 self-end rounded-lg border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  onClick={resetFilters}
+                  type="button"
+                >
+                  Xóa lọc
+                </button>
+              </div>
+            ) : null}
+
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left">
                 <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -866,5 +944,55 @@ export default function AssignmentsPage() {
         </div>
       )}
     </PagePad>
+  );
+}
+
+function AssignmentStatCard({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+  tone: "slate" | "amber" | "sky" | "emerald";
+}) {
+  const toneClass = {
+    slate: {
+      circle: "bg-slate-100 text-slate-700",
+      arc: "bg-slate-50",
+    },
+    amber: {
+      circle: "bg-amber-100 text-amber-700",
+      arc: "bg-amber-50",
+    },
+    sky: {
+      circle: "bg-sky-100 text-sky-700",
+      arc: "bg-sky-50",
+    },
+    emerald: {
+      circle: "bg-emerald-100 text-emerald-700",
+      arc: "bg-emerald-50",
+    },
+  }[tone];
+
+  return (
+    <Card className="relative overflow-hidden px-4 py-4">
+      <div
+        className={`pointer-events-none absolute -right-8 -top-14 size-36 rounded-full ${toneClass.arc}`}
+      />
+      <div className="relative flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            {label}
+          </p>
+          <p className="mt-2 text-2xl font-bold text-slate-950">{value}</p>
+        </div>
+        <span className={`grid size-10 place-items-center rounded-full ${toneClass.circle}`}>
+          <Icon className="size-5" />
+        </span>
+      </div>
+    </Card>
   );
 }

@@ -405,6 +405,13 @@ export type AssignmentListResponse = {
   totalPages: number;
 };
 
+export type AssignmentStats = {
+  total: number;
+  pending: number;
+  active: number;
+  completed: number;
+};
+
 export type AssignmentQueryParams = {
   page?: number;
   limit?: number;
@@ -431,6 +438,11 @@ export const assignmentApi = {
       `/api/v1/assignments${qs ? `?${qs}` : ''}`,
       { auth: true },
     );
+  },
+  getStats() {
+    return apiFetch<AssignmentStats>('/api/v1/assignments/stats', {
+      auth: true,
+    });
   },
   getById(id: string) {
     return apiFetch<AssignmentItem>(`/api/v1/assignments/${id}`, {

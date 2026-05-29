@@ -14,6 +14,11 @@ export class AssignmentsController {
     return this.assignmentsService.findAll(query);
   }
 
+  @Get('stats')
+  getStats() {
+    return this.assignmentsService.getStats();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.assignmentsService.findOne(id);

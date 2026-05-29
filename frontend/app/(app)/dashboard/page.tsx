@@ -455,7 +455,7 @@ function ChartSkeleton() {
 }
 
 function TableSkeleton() {
-  return Array.from({ length: 4 }, (_, index) => (
+  return Array.from({ length: 10 }, (_, index) => (
     <tr key={index}>
       {Array.from({ length: 5 }, (_, cellIndex) => (
         <td className="px-4 py-4" key={cellIndex}>

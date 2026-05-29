@@ -99,6 +99,24 @@ export class AssignmentsService {
     return assignment;
   }
 
+  async getStats() {
+    const [total, pending, active, completed] = await Promise.all([
+      this.assignmentModel.countDocuments(),
+      this.assignmentModel.countDocuments({ status: AssignmentStatus.Pending }),
+      this.assignmentModel.countDocuments({ status: AssignmentStatus.Active }),
+      this.assignmentModel.countDocuments({
+        status: AssignmentStatus.Completed,
+      }),
+    ]);
+
+    return {
+      total,
+      pending,
+      active,
+      completed,
+    };
+  }
+
   async create(dto: CreateAssignmentDto) {
     if (dto.status === AssignmentStatus.Active) {
       await this.assertNoInProgressMaintenance(dto.machinery);

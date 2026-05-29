@@ -131,7 +131,7 @@ export class DashboardService {
     const logs = await this.maintenanceLogModel
       .find()
       .sort({ createdAt: -1 })
-      .limit(5)
+      .limit(10)
       .populate('machinery', 'name')
       .populate('technician', 'fullName')
       .lean<PopulatedMaintenance[]>()
