@@ -121,6 +121,7 @@ const assignmentSchema = new Schema(
       enum: ['PENDING', 'IN_TRANSIT', 'ACTIVE', 'COMPLETED'],
       default: 'PENDING',
     },
+    notes: String,
   },
   { timestamps: true },
 );

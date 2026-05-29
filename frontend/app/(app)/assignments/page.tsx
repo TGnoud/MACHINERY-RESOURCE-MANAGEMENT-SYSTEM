@@ -806,7 +806,6 @@ export default function AssignmentsPage() {
                        const updated = await assignmentApi.update(selectedAssignment._id, payload);
                        setSelectedAssignment(updated);
                        fetchData();
-                       alert("Đã lưu thay đổi trạng thái phiếu điều phối thành công!");
                      } catch (err) {
                        alert("Lỗi khi lưu trạng thái: " + (err instanceof Error ? err.message : String(err)));
                      } finally {
