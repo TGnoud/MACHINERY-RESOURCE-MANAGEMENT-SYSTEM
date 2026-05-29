@@ -524,6 +524,8 @@ export type MaintenanceQueryParams = {
   machinery?: string;
   technician?: string;
   search?: string;
+  minCost?: number;
+  maxCost?: number;
   sort?: string;
   order?: "asc" | "desc";
 };

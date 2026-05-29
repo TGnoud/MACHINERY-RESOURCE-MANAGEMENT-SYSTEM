@@ -787,18 +787,31 @@ async function seed() {
 
     for (let j = 0; j < logCount; j++) {
       const index = mIdx * 3 + j;
-      const createdAt = addMonths(now, -(j + 1 + (mIdx % 6)));
-      createdAt.setDate(3 + ((mIdx * 5 + j * 7) % 24));
+      const dateSeed = seededRandom(index * 13 + 29);
+      const createdAt =
+        j === logCount - 1 && mIdx % 5 === 0
+          ? new Date(now)
+          : addMonths(now, -Math.floor(dateSeed * 11));
+      createdAt.setDate(1 + Math.floor(seededRandom(index * 17 + 7) * 27));
+      createdAt.setHours(
+        7 + Math.floor(seededRandom(index * 19 + 3) * 10),
+        Math.floor(seededRandom(index * 23 + 5) * 60),
+        0,
+        0,
+      );
       const status =
         j < logCount - 1
           ? 'COMPLETED'
           : pick(['COMPLETED', 'IN_PROGRESS', 'PENDING'], mIdx);
       const priority = pick(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], index);
       const baseCost = 1200000 + ((mIdx * 17 + j * 11) % 18) * 450000;
+      const technicianIndex = Math.floor(
+        seededRandom(index * 31 + 11) * technicians.length,
+      );
 
       maintenanceLogs.push({
         machinery: machinery._id,
-        technician: technicians[index % technicians.length]._id,
+        technician: technicians[technicianIndex]._id,
         cost: baseCost,
         type: pick(['ROUTINE', 'EMERGENCY', 'INSPECTION', 'REPLACEMENT'], index),
         priority,
@@ -835,11 +848,19 @@ async function seed() {
         updatedAt: createdAt,
       });
 
-      if (status !== 'COMPLETED') {
+      if (status === 'IN_PROGRESS') {
         activeMaintenanceMachineryIds.add(String(machinery._id));
       }
     }
   });
+
+  await Machinery.updateMany(
+    {
+      _id: { $nin: Array.from(activeMaintenanceMachineryIds) },
+      status: 'MAINTENANCE',
+    },
+    { status: 'AVAILABLE' },
+  );
 
   if (activeMaintenanceMachineryIds.size > 0) {
     await Machinery.updateMany(

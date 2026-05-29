@@ -3,6 +3,7 @@ import {
   IsIn,
   IsInt,
   IsMongoId,
+  IsNumber,
   IsOptional,
   IsString,
   Max,
@@ -52,6 +53,18 @@ export class QueryMaintenanceLogDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  minCost?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  maxCost?: number;
 
   @IsOptional()
   @IsString()

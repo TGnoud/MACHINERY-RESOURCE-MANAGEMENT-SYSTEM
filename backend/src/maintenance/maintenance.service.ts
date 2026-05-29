@@ -35,6 +35,8 @@ export class MaintenanceService {
       machinery,
       technician,
       search,
+      minCost,
+      maxCost,
       sort = 'createdAt',
       order = 'desc',
     } = query;
@@ -46,6 +48,17 @@ export class MaintenanceService {
     if (priority) filter.priority = priority;
     if (machinery) filter.machinery = machinery;
     if (technician) filter.technician = technician;
+    if (minCost !== undefined || maxCost !== undefined) {
+      filter.cost = {};
+
+      if (minCost !== undefined) {
+        filter.cost.$gte = minCost;
+      }
+
+      if (maxCost !== undefined) {
+        filter.cost.$lte = maxCost;
+      }
+    }
 
     if (search) {
       const regex = new RegExp(search, 'i');
@@ -140,22 +153,13 @@ export class MaintenanceService {
       );
     }
 
-    const status = dto.status ?? MaintenanceStatus.Pending;
+    const status = MaintenanceStatus.Pending;
     const created = await this.maintenanceLogModel.create({
       ...dto,
       technician: dto.technician ?? user.id,
       status,
-      completedAt:
-        status === MaintenanceStatus.Completed
-          ? dto.completedAt ?? new Date()
-          : dto.completedAt,
+      completedAt: undefined,
     });
-
-    if (status !== MaintenanceStatus.Completed) {
-      await this.machineryModel.findByIdAndUpdate(dto.machinery, {
-        status: MachineryStatus.Maintenance,
-      });
-    }
 
     return created.populate(['machinery', 'technician']);
   }
@@ -206,7 +210,7 @@ export class MaintenanceService {
 
     const activeMaintenance = await this.maintenanceLogModel.exists({
       machinery: machineryId,
-      status: { $in: [MaintenanceStatus.Pending, MaintenanceStatus.InProgress] },
+      status: MaintenanceStatus.InProgress,
     });
 
     if (activeMaintenance) {
