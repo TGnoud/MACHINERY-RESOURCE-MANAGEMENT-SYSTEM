@@ -34,6 +34,13 @@ export default function NewAssignmentPage() {
   const [machineries, setMachineries] = useState<MachineryItem[]>([]);
   const [loadingMachineries, setLoadingMachineries] = useState(true);
 
+  // Combobox & Search States
+  const [machinerySearch, setMachinerySearch] = useState("");
+  const [isMachineryDropdownOpen, setIsMachineryDropdownOpen] = useState(false);
+  
+  const [destinationPresets, setDestinationPresets] = useState<string[]>([]);
+  const [isDestDropdownOpen, setIsDestDropdownOpen] = useState(false);
+
   // Form States
   const [machineryId, setMachineryId] = useState("");
   const [destination, setDestination] = useState("");
@@ -52,7 +59,7 @@ export default function NewAssignmentPage() {
     }
   }, [isAllowed, router]);
 
-  // Fetch machinery options on mount
+  // Fetch machinery options & destinations on mount
   useEffect(() => {
     async function fetchMachinery() {
       try {
@@ -65,8 +72,29 @@ export default function NewAssignmentPage() {
         setLoadingMachineries(false);
       }
     }
+    async function fetchDestinations() {
+      try {
+        const res = await assignmentApi.getAll({ limit: 200 });
+        const dests = Array.from(new Set(res.data.map(a => a.destination).filter(Boolean)));
+        setDestinationPresets(dests);
+      } catch (err) {
+        console.error("Lỗi khi tải danh sách điểm đến mẫu:", err);
+        setDestinationPresets([
+          'Dự án VSIP mở rộng, Bình Dương',
+          'Kho trung chuyển Cát Lái, TP.HCM',
+          'Công trường hầm Thủ Thiêm',
+          'Mỏ đá Kiên Giang',
+          'Khu công nghiệp Long Hậu',
+          'Cảng ICD Sóng Thần',
+          'Dự án Metro Bến Thành - Suối Tiên',
+          'Nhà máy cơ khí Đồng Nai',
+          'Dự án sân bay Long Thành, Đồng Nai',
+        ]);
+      }
+    }
     if (isAllowed) {
       fetchMachinery();
+      fetchDestinations();
     }
   }, [isAllowed]);
 
@@ -77,7 +105,7 @@ export default function NewAssignmentPage() {
       return;
     }
     if (!destination.trim()) {
-      setError("Vui lòng nhập điểm đến / công trường.");
+      setError("Vui lòng nhập hoặc chọn điểm đến / công trường.");
       return;
     }
     if (!startDate) {
@@ -95,6 +123,7 @@ export default function NewAssignmentPage() {
         destination: destination.trim(),
         startDate,
         status,
+        notes: notes.trim() || undefined,
       };
 
       if (endDate) {
@@ -152,30 +181,85 @@ export default function NewAssignmentPage() {
                 <TextField label="Người điều phối" value={user?.fullName || "Chưa đăng nhập"} />
               </div>
 
-              <div className="mt-6">
+              <div className="mt-6 relative" id="machinery-combobox-container">
                 <label className="block">
                   <span className="text-sm font-medium text-slate-700">
                     Thiết bị cần điều động <span className="text-red-500">*</span>
                   </span>
                   <span className="relative mt-2 block">
-                    <select
-                      className="h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-11 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-                      value={machineryId}
-                      onChange={(e) => setMachineryId(e.target.value)}
-                      required
+                    <button
+                      type="button"
+                      onClick={() => setIsMachineryDropdownOpen(!isMachineryDropdownOpen)}
+                      className="h-12 w-full flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 text-base text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 text-left"
                     >
-                      <option value="">
-                        {loadingMachineries ? "Đang tải danh sách..." : "Chọn thiết bị từ danh sách..."}
-                      </option>
-                      {machineries.map((m) => (
-                        <option key={m._id} value={m._id}>
-                          {m.name} ({m.serialNumber}) — Trạng thái: {
-                            m.status === "AVAILABLE" ? "Sẵn sàng" : m.status === "RENTED" ? "Đang thuê" : "Bảo trì"
-                          }
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
+                      <span className="truncate">
+                        {(() => {
+                          const selectedMachinery = machineries.find(m => m._id === machineryId);
+                          return selectedMachinery
+                            ? `${selectedMachinery.name} (${selectedMachinery.serialNumber}) — Trạng thái: ${
+                                selectedMachinery.status === "AVAILABLE" ? "Sẵn sàng" : selectedMachinery.status === "RENTED" ? "Đang thuê" : "Bảo trì"
+                              }`
+                            : "Chọn thiết bị từ danh sách...";
+                        })()}
+                      </span>
+                      <ChevronDown className={`size-5 text-slate-500 transition-transform duration-200 ${isMachineryDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {isMachineryDropdownOpen && (
+                      <div className="absolute left-0 right-0 z-20 mt-1 max-h-72 overflow-y-auto rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+                        <input
+                          type="text"
+                          className="h-10 w-full rounded-md border border-slate-200 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:border-sky-500"
+                          placeholder="Tìm tên hoặc số serial..."
+                          value={machinerySearch}
+                          onChange={(e) => setMachinerySearch(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <div className="mt-2 space-y-1">
+                          {loadingMachineries ? (
+                            <div className="flex items-center justify-center p-4 text-sm text-slate-500">
+                              <Loader2 className="size-4 animate-spin mr-2" /> Đang tải thiết bị...
+                            </div>
+                          ) : (
+                            (() => {
+                              const filtered = machineries.filter(
+                                (m) =>
+                                  m.name.toLowerCase().includes(machinerySearch.toLowerCase()) ||
+                                  m.serialNumber.toLowerCase().includes(machinerySearch.toLowerCase())
+                              );
+                              if (filtered.length === 0) {
+                                return <div className="p-3 text-center text-sm text-slate-500">Không tìm thấy thiết bị nào</div>;
+                              }
+                              return filtered.map((m) => {
+                                const isSelected = m._id === machineryId;
+                                const statusLabel = m.status === "AVAILABLE" ? "Sẵn sàng" : m.status === "RENTED" ? "Đang thuê" : "Bảo trì";
+                                const statusColor = m.status === "AVAILABLE" ? "text-emerald-600 font-bold" : m.status === "RENTED" ? "text-sky-600 font-bold" : "text-red-500 font-bold";
+                                return (
+                                  <button
+                                    key={m._id}
+                                    type="button"
+                                    onClick={() => {
+                                      setMachineryId(m._id);
+                                      setIsMachineryDropdownOpen(false);
+                                      setMachinerySearch("");
+                                    }}
+                                    className={`flex w-full flex-col rounded-md px-3 py-2 text-left text-sm transition hover:bg-slate-50 ${
+                                      isSelected ? "bg-sky-50/70" : ""
+                                    }`}
+                                  >
+                                    <span className="font-bold text-slate-900">{m.name}</span>
+                                    <span className="mt-0.5 flex items-center justify-between text-xs text-slate-500">
+                                      <span>Số serial: {m.serialNumber}</span>
+                                      <span className={statusColor}>{statusLabel}</span>
+                                    </span>
+                                  </button>
+                                );
+                              });
+                            })()
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </span>
                 </label>
               </div>
@@ -183,21 +267,70 @@ export default function NewAssignmentPage() {
 
             <FormCard icon={Route} iconTone="amber" title="Chi tiết điều phối">
               <div className="space-y-6">
-                <label className="block">
+                <label className="block relative" id="destination-combobox-container">
                   <span className="text-sm font-medium text-slate-700">
                     Điểm đến / Công trường <span className="text-red-500">*</span>
                   </span>
                   <span className="relative mt-2 block">
-                    <MapPin className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
+                    <MapPin className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-500 z-10" />
                     <input
-                      className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-12 pr-4 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-                      placeholder="Nhập địa chỉ hoặc tên công trường dự án..."
+                      className="h-12 w-full rounded-lg border border-slate-200 bg-white pl-12 pr-10 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                      placeholder="Nhập địa chỉ hoặc tìm kiếm công trường dự án..."
                       type="text"
                       value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
+                      onChange={(e) => {
+                        setDestination(e.target.value);
+                        setIsDestDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsDestDropdownOpen(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsDestDropdownOpen(false), 200);
+                      }}
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsDestDropdownOpen(!isDestDropdownOpen);
+                      }}
+                      className="absolute right-3 top-1/2 size-8 -translate-y-1/2 flex items-center justify-center text-slate-400 hover:text-slate-600 transition"
+                    >
+                      <ChevronDown className={`size-4 transition-transform duration-200 ${isDestDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
                   </span>
+
+                  {isDestDropdownOpen && (
+                    <div className="absolute left-0 right-0 z-20 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg">
+                      {(() => {
+                        const query = destination.trim().toLowerCase();
+                        const filtered = destinationPresets.filter(
+                          (d) => d.toLowerCase().includes(query)
+                        );
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="p-3 text-center text-xs text-slate-500 italic">
+                              Không tìm thấy điểm đến mẫu, tiếp tục gõ để nhập thủ công...
+                            </div>
+                          );
+                        }
+                        return filtered.map((d) => (
+                          <button
+                            key={d}
+                            type="button"
+                            onMouseDown={() => {
+                              setDestination(d);
+                              setIsDestDropdownOpen(false);
+                            }}
+                            className="flex w-full items-center rounded-md px-3 py-2 text-left text-sm text-slate-800 transition hover:bg-slate-50 hover:text-sky-700"
+                          >
+                            <MapPin className="mr-2 size-3.5 text-slate-400 shrink-0" />
+                            <span className="font-medium truncate">{d}</span>
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  )}
                 </label>
 
                 <div className="grid gap-5 md:grid-cols-2">
@@ -260,13 +393,13 @@ export default function NewAssignmentPage() {
             <FormCard icon={FileText} iconTone="indigo" title="Ghi chú & Hướng dẫn">
               <label className="block">
                 <span className="flex items-center justify-between gap-4 text-sm font-medium text-slate-700">
-                  <span>Nội dung ghi chú</span>
+                  <span>Nội dung ghi chú & hướng dẫn</span>
                   <span className="text-xs font-medium text-slate-500">Tùy chọn</span>
                 </span>
                 <textarea
-                  className="mt-2 min-h-48 w-full resize-none rounded-lg border border-slate-200 bg-white p-4 text-base text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
-                  placeholder="Nhập hướng dẫn đặc biệt cho tài xế hoặc thông tin công trường..."
-                  rows={7}
+                  className="mt-2 min-h-48 w-full resize-none rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+                  placeholder="Nhập ghi chú, hướng dẫn đặc biệt cho tài xế hoặc thông tin công trường..."
+                  rows={8}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                 />

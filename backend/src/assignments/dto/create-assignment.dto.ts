@@ -25,4 +25,8 @@ export class CreateAssignmentDto {
   @IsEnum(AssignmentStatus)
   @IsOptional()
   status?: AssignmentStatus;
+
+  @IsString()
+  @IsOptional()
+  notes?: string;
 }

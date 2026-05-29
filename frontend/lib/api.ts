@@ -392,6 +392,7 @@ export type AssignmentItem = {
   startDate: string;
   endDate?: string;
   status: 'PENDING' | 'IN_TRANSIT' | 'ACTIVE' | 'COMPLETED';
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 };

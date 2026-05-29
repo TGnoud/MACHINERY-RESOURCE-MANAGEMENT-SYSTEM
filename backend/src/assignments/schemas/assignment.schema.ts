@@ -43,6 +43,9 @@ export class Assignment {
     required: true,
   })
   status: AssignmentStatus;
+
+  @Prop({ trim: true })
+  notes?: string;
 }
 
 export type AssignmentDocument = HydratedDocument<Assignment>;

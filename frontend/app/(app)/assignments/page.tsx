@@ -10,6 +10,7 @@ import {
   Loader2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Truck,
   User,
   Calendar,
@@ -634,13 +635,40 @@ export default function AssignmentsPage() {
                       <Truck className="size-4 text-slate-400 shrink-0 mt-0.5" />
                       <div>
                         <p className="text-xs font-bold text-slate-400">Trạng thái vận chuyển</p>
-                        <span
-                          className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-bold mt-1 ${
-                            STATUS_MAP[selectedAssignment.status]?.className
-                          }`}
-                        >
-                          {STATUS_MAP[selectedAssignment.status]?.label}
-                        </span>
+                        {user?.role === "ADMIN" ? (
+                          <div className="relative mt-1 block">
+                            <select
+                              value={selectedAssignment.status}
+                              onChange={async (e) => {
+                                const newStatus = e.target.value;
+                                try {
+                                  const updated = await assignmentApi.update(selectedAssignment._id, {
+                                    status: newStatus,
+                                  });
+                                  setSelectedAssignment(updated);
+                                  fetchData();
+                                } catch (err) {
+                                  alert("Lỗi khi cập nhật trạng thái: " + (err instanceof Error ? err.message : String(err)));
+                                }
+                              }}
+                              className="h-8 rounded-lg border border-slate-200 bg-white px-2 pr-7 text-xs font-bold text-slate-800 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/10 appearance-none cursor-pointer"
+                            >
+                              <option value="PENDING">Chờ xử lý</option>
+                              <option value="IN_TRANSIT">Đang di chuyển</option>
+                              <option value="ACTIVE">Đang hoạt động</option>
+                              <option value="COMPLETED">Hoàn thành</option>
+                            </select>
+                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 size-3.5 -translate-y-1/2 text-slate-500" />
+                          </div>
+                        ) : (
+                          <span
+                            className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-bold mt-1 ${
+                              STATUS_MAP[selectedAssignment.status]?.className
+                            }`}
+                          >
+                            {STATUS_MAP[selectedAssignment.status]?.label}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -727,6 +755,16 @@ export default function AssignmentsPage() {
                 </div>
 
               </div>
+
+              {/* Notes and Instructions */}
+              {selectedAssignment.notes && (
+                <div className="border-t border-slate-100 pt-5">
+                  <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-100/80">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ghi chú & Hướng dẫn điều phối</p>
+                    <p className="text-sm text-slate-700 mt-1.5 whitespace-pre-line leading-relaxed">{selectedAssignment.notes}</p>
+                  </div>
+                </div>
+              )}
 
             </div>
 

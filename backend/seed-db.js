@@ -150,6 +150,11 @@ const primaryUsers = [
   ['Nguyễn Thị Lan', 'lan.nguyen@gnoudcrm.vn', 'DISPATCHER'],
   ['Vũ Đức Hải', 'hai.vu@gnoudcrm.vn', 'DISPATCHER'],
   ['Đỗ Nhật Nam', 'nam.do@gnoudcrm.vn', 'TECHNICIAN'],
+  ['Nguyễn Hoàng Long', 'long.nguyen@gnoudcrm.vn', 'DISPATCHER'],
+  ['Phạm Minh Thư', 'thu.pham@gnoudcrm.vn', 'DISPATCHER'],
+  ['Lê Quang Đạo', 'dao.le@gnoudcrm.vn', 'DISPATCHER'],
+  ['Trần Bảo Vy', 'vy.tran@gnoudcrm.vn', 'DISPATCHER'],
+  ['Nguyễn Thanh Sơn', 'son.nguyen@gnoudcrm.vn', 'DISPATCHER'],
 ];
 
 const CATEGORY_DISTRIBUTION = [55, 45, 35, 35, 30, 25, 25];
@@ -189,6 +194,37 @@ const destinations = [
   'Cảng ICD Sóng Thần',
   'Dự án Metro Bến Thành - Suối Tiên',
   'Nhà máy cơ khí Đồng Nai',
+  'Dự án sân bay Long Thành, Đồng Nai',
+  'Cảng trung chuyển quốc tế Cần Giờ, TP.HCM',
+  'Tuyến cao tốc Biên Hòa - Vũng Tàu',
+  'Khu đô thị Vinhomes Grand Park, Quận 9',
+  'Công trường cầu Nhơn Trạch, Đồng Nai',
+  'Khu công nghệ cao TP.HCM, Quận 9',
+  'Công trường cầu Thủ Thiêm 4',
+  'Dự án đường Vành Đai 3, Bình Dương',
+  'Công trình cầu Cần Giờ, TP.HCM',
+  'Khu công nghiệp VSIP II, Bình Dương',
+  'Tòa nhà Landmark 81, Bình Thạnh',
+  'Nhà ga T3 Sân bay Tân Sơn Nhất',
+];
+
+const NOTES_POOL = [
+  'Thiết bị cần được bàn giao đúng giờ hẹn. Liên hệ giám sát công trường trước khi đến.',
+  'Kiểm tra lại mức dầu và hệ thống phanh trước khi xuất phát.',
+  'Hồ sơ máy móc đi kèm đầy đủ bao gồm giấy đăng kiểm và bảo hiểm.',
+  'Yêu cầu lái máy vận hành cẩn thận, tuân thủ nội quy an toàn lao động tại công trường.',
+  'Thiết bị dự phòng cho ca làm việc ban đêm. Cần bố trí đèn chiếu sáng đầy đủ.',
+  'Đã kiểm tra kỹ thuật đạt tiêu chuẩn vận hành. Bàn giao biên bản đầy đủ.',
+  'Cần lưu ý thời tiết mưa bão. Che chắn cẩn thận các chi tiết máy nhạy cảm.',
+  'Thiết bị vừa được bảo dưỡng định kỳ. Vận hành nhẹ nhàng trong 10 giờ đầu.',
+];
+
+const INSTRUCTIONS_POOL = [
+  '1. Di chuyển thiết bị bằng xe fooc chuyên dụng.\n2. Bàn giao chìa khóa và biên bản cho kỹ sư trưởng.\n3. Hướng dẫn vận hành cơ bản cho đội ngũ tại công trường.',
+  '1. Liên hệ ông Nguyễn Văn B (090xxxxxxx) để nhận vị trí đỗ.\n2. Thực hiện đo đạc và ký nhận bàn giao thiết bị.\n3. Chụp ảnh lưu trữ trạng thái máy lúc bàn giao.',
+  '1. Kéo thiết bị về vị trí tập kết an toàn.\n2. Kiểm tra nhiên liệu trước khi bàn giao.\n3. Ký xác nhận phụ tùng đi kèm máy.',
+  '1. Vận chuyển máy đến phân khu A công trường.\n2. Bàn giao sổ nhật ký vận hành cho đội trưởng.\n3. Kiểm tra các biển báo an toàn trên thân máy.',
+  '1. Bàn giao máy tại cổng số 2 của nhà máy.\n2. Cùng giám sát bên thuê nghiệm thu chức năng gàu xúc/nâng.\n3. Hoàn tất ký tá biên bản giao nhận 3 bên.',
 ];
 
 const MODELS = {
@@ -614,41 +650,76 @@ async function seed() {
     machineries.push(mach);
   }
 
-  const now = new Date();
+  const now = new Date('2026-05-29T00:00:00Z');
   const assignments = [];
   machineries.forEach((m, mIdx) => {
     // Generate exactly 3 assignments per machinery (750 in total)
     for (let j = 0; j < 3; j++) {
-      const startDate = new Date(now);
-      if (j === 0) {
-        startDate.setMonth(now.getMonth() - 8 - (mIdx % 4));
-      } else if (j === 1) {
-        startDate.setMonth(now.getMonth() - 3 - (mIdx % 3));
-      } else {
-        startDate.setMonth(now.getMonth() - 1 + (mIdx % 2));
-      }
-      startDate.setDate(1 + (mIdx * 7 + j * 11) % 28);
-
-      const endDate = new Date(startDate);
-      endDate.setMonth(startDate.getMonth() + 1 + (mIdx % 2));
-      endDate.setDate(startDate.getDate() + 10);
-
       let status = 'COMPLETED';
-      if (j === 2) {
-        const rand = (mIdx + j) % 4;
-        if (rand === 0) status = 'PENDING';
-        else if (rand === 1) status = 'IN_TRANSIT';
-        else if (rand === 2) status = 'ACTIVE';
-        else status = 'COMPLETED';
-      }
+      let startDate;
+      let endDate;
 
-      let actualEndDate = endDate;
-      if (status === 'ACTIVE' || status === 'PENDING' || status === 'IN_TRANSIT') {
-        if ((mIdx % 3) === 0) {
-          actualEndDate = undefined;
+      if (j === 0) {
+        // First assignment: Completed in the distant past (8-11 months ago)
+        status = 'COMPLETED';
+        startDate = new Date(now);
+        startDate.setMonth(now.getMonth() - 8 - (mIdx % 4));
+        startDate.setDate(1 + (mIdx * 7 + j * 11) % 28);
+        
+        endDate = new Date(startDate);
+        endDate.setMonth(startDate.getMonth() + 1 + (mIdx % 2));
+        endDate.setDate(startDate.getDate() + 10);
+      } else if (j === 1) {
+        // Second assignment: Completed in the recent past (3-5 months ago)
+        status = 'COMPLETED';
+        startDate = new Date(now);
+        startDate.setMonth(now.getMonth() - 3 - (mIdx % 3));
+        startDate.setDate(1 + (mIdx * 7 + j * 11) % 28);
+        
+        endDate = new Date(startDate);
+        endDate.setMonth(startDate.getMonth() + 1 + (mIdx % 2));
+        endDate.setDate(startDate.getDate() + 10);
+      } else {
+        // Third assignment: Current status relative to May 29, 2026
+        const rand = (mIdx + j) % 4;
+        if (rand === 0) {
+          status = 'PENDING';
+          // PENDING: starts 2 to 10 days in the future
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() + 2 + (mIdx % 9));
+          
+          endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 15 + (mIdx % 15));
+        } else if (rand === 1) {
+          status = 'IN_TRANSIT';
+          // IN_TRANSIT: starts today, yesterday, or 2 days ago
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - (mIdx % 3));
+          
+          endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 10 + (mIdx % 10));
+        } else if (rand === 2) {
+          status = 'ACTIVE';
+          // ACTIVE: starts 5 to 25 days ago
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 5 - (mIdx % 21));
+          
+          if ((mIdx % 2) === 0) {
+            // Ongoing with no end date
+            endDate = undefined;
+          } else {
+            // Finishes in the future
+            endDate = new Date(now);
+            endDate.setDate(now.getDate() + 10 + (mIdx % 15));
+          }
         } else {
-          actualEndDate = new Date(now);
-          actualEndDate.setMonth(now.getMonth() + 1);
+          status = 'COMPLETED';
+          // COMPLETED: completed in the past few weeks
+          startDate = new Date(now);
+          startDate.setDate(now.getDate() - 35 - (mIdx % 25));
+          
+          endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 15 + (mIdx % 10));
         }
       }
 
@@ -657,8 +728,9 @@ async function seed() {
         dispatcher: dispatchers[(mIdx + j) % dispatchers.length]._id,
         destination: pick(destinations, mIdx * 3 + j),
         startDate,
-        endDate: actualEndDate,
+        endDate,
         status,
+        notes: `${pick(NOTES_POOL, mIdx * 3 + j)}\n\nHướng dẫn điều phối:\n${pick(INSTRUCTIONS_POOL, mIdx * 3 + j)}`,
         _id: objectId(),
         createdAt: startDate,
         updatedAt: startDate,
