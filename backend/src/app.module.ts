@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { Category, CategorySchema } from './categories/schemas/category.schema';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MachineriesModule } from './machineries/machineries.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 import {
   Machinery,
   MachinerySchema,
@@ -51,6 +52,7 @@ import { AssignmentsModule } from './assignments/assignments.module';
     AuthModule,
     DashboardModule,
     MachineriesModule,
+    MaintenanceModule,
     CategoriesModule,
     UploadModule,
     AssignmentsModule,

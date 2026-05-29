@@ -238,19 +238,27 @@ export default function NewAssignmentPage() {
                                   <button
                                     key={m._id}
                                     type="button"
+                                    disabled={m.status !== "AVAILABLE"}
                                     onClick={() => {
                                       setMachineryId(m._id);
                                       setIsMachineryDropdownOpen(false);
                                       setMachinerySearch("");
                                     }}
-                                    className={`flex w-full flex-col rounded-md px-3 py-2 text-left text-sm transition hover:bg-slate-50 ${
+                                    className={`flex w-full flex-col rounded-md px-3 py-2 text-left text-sm transition ${
                                       isSelected ? "bg-sky-50/70" : ""
+                                    } ${
+                                      m.status === "AVAILABLE"
+                                        ? "hover:bg-slate-50 cursor-pointer"
+                                        : "opacity-40 cursor-not-allowed bg-slate-50/30"
                                     }`}
+                                    title={m.status !== "AVAILABLE" ? "Thiết bị hiện không sẵn sàng để điều phối" : ""}
                                   >
                                     <span className="font-bold text-slate-900">{m.name}</span>
                                     <span className="mt-0.5 flex items-center justify-between text-xs text-slate-500">
                                       <span>Số serial: {m.serialNumber}</span>
-                                      <span className={statusColor}>{statusLabel}</span>
+                                      <span className={statusColor}>
+                                        {statusLabel} {m.status !== "AVAILABLE" && "(Không khả dụng)"}
+                                      </span>
                                     </span>
                                   </button>
                                 );

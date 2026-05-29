@@ -739,7 +739,7 @@ async function seed() {
     }
   });
 
-  const maintenanceLogs = Array.from({ length: 20 }, (_, index) => {
+  let maintenanceLogs = Array.from({ length: 20 }, (_, index) => {
     const createdAt = addMonths(now, -Math.floor(index / 4));
     createdAt.setDate(5 + (index % 20));
     const status = pick(['COMPLETED', 'COMPLETED', 'IN_PROGRESS', 'PENDING'], index);
@@ -779,6 +779,74 @@ async function seed() {
       updatedAt: createdAt,
     };
   });
+
+  maintenanceLogs = [];
+  const activeMaintenanceMachineryIds = new Set();
+  machineries.forEach((machinery, mIdx) => {
+    const logCount = 2 + (mIdx % 2);
+
+    for (let j = 0; j < logCount; j++) {
+      const index = mIdx * 3 + j;
+      const createdAt = addMonths(now, -(j + 1 + (mIdx % 6)));
+      createdAt.setDate(3 + ((mIdx * 5 + j * 7) % 24));
+      const status =
+        j < logCount - 1
+          ? 'COMPLETED'
+          : pick(['COMPLETED', 'IN_PROGRESS', 'PENDING'], mIdx);
+      const priority = pick(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'], index);
+      const baseCost = 1200000 + ((mIdx * 17 + j * 11) % 18) * 450000;
+
+      maintenanceLogs.push({
+        machinery: machinery._id,
+        technician: technicians[index % technicians.length]._id,
+        cost: baseCost,
+        type: pick(['ROUTINE', 'EMERGENCY', 'INSPECTION', 'REPLACEMENT'], index),
+        priority,
+        status,
+        description: pick(
+          [
+            'Kiem tra he thong thuy luc va thay dau dinh ky.',
+            'Xu ly canh bao hao mon bac dan truc chinh.',
+            'Thay loc nhien lieu, ve sinh ket nuoc va kiem tra cam bien.',
+            'Khac phuc tieng on bat thuong khi van hanh tai cao.',
+            'Thay day curoa, siet lai bu long khung gam va can chinh phanh.',
+          ],
+          index,
+        ),
+        completedAt: status === 'COMPLETED' ? createdAt : undefined,
+        spareParts: [
+          {
+            name: pick(
+              [
+                'Loc dau thuy luc',
+                'Bac dan truc',
+                'Day curoa',
+                'Cam bien nhiet',
+                'Ma phanh',
+              ],
+              index,
+            ),
+            quantity: 1 + (index % 3),
+            cost: Math.round(baseCost * 0.35),
+          },
+        ],
+        _id: objectId(),
+        createdAt,
+        updatedAt: createdAt,
+      });
+
+      if (status !== 'COMPLETED') {
+        activeMaintenanceMachineryIds.add(String(machinery._id));
+      }
+    }
+  });
+
+  if (activeMaintenanceMachineryIds.size > 0) {
+    await Machinery.updateMany(
+      { _id: { $in: Array.from(activeMaintenanceMachineryIds) } },
+      { status: 'MAINTENANCE' },
+    );
+  }
 
   await Assignment.insertMany(assignments);
   await MaintenanceLog.insertMany(maintenanceLogs);

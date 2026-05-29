@@ -353,7 +353,7 @@ export const machineryApi = {
     });
   },
   getMaintenance(id: string) {
-    return apiFetch<any[]>(`/api/v1/machineries/${id}/maintenance`, {
+    return apiFetch<MaintenanceItem[]>(`/api/v1/machineries/${id}/maintenance`, {
       auth: true,
     });
   },
@@ -454,6 +454,135 @@ export const assignmentApi = {
   remove(id: string) {
     return apiFetch<{ message: string }>(`/api/v1/assignments/${id}`, {
       method: 'DELETE',
+      auth: true,
+    });
+  },
+};
+
+// --- Maintenance Types ---
+
+export type MaintenanceType =
+  | "ROUTINE"
+  | "EMERGENCY"
+  | "INSPECTION"
+  | "REPLACEMENT";
+
+export type MaintenancePriority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export type MaintenanceStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
+
+export type SparePartItem = {
+  name: string;
+  quantity: number;
+  cost: number;
+};
+
+export type MaintenanceTechnician = {
+  _id: string;
+  fullName: string;
+  email: string;
+  role?: UserRole;
+};
+
+export type MaintenanceItem = {
+  _id: string;
+  machinery: MachineryItem | null;
+  technician: MaintenanceTechnician | null;
+  cost: number;
+  type: MaintenanceType;
+  priority: MaintenancePriority;
+  status: MaintenanceStatus;
+  description: string;
+  completedAt?: string;
+  spareParts: SparePartItem[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MaintenanceListResponse = {
+  data: MaintenanceItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type MaintenanceStats = {
+  total: number;
+  completed: number;
+  inProgress: number;
+  pending: number;
+  monthlyCost: number;
+};
+
+export type MaintenanceQueryParams = {
+  page?: number;
+  limit?: number;
+  status?: MaintenanceStatus;
+  type?: MaintenanceType;
+  priority?: MaintenancePriority;
+  machinery?: string;
+  technician?: string;
+  search?: string;
+  sort?: string;
+  order?: "asc" | "desc";
+};
+
+export type CreateMaintenanceInput = {
+  machinery: string;
+  technician?: string;
+  cost?: number;
+  type?: MaintenanceType;
+  priority?: MaintenancePriority;
+  status?: MaintenanceStatus;
+  description: string;
+  completedAt?: string;
+  spareParts?: SparePartItem[];
+};
+
+export const maintenanceApi = {
+  getAll(params?: MaintenanceQueryParams) {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          query.set(key, String(value));
+        }
+      });
+    }
+    const qs = query.toString();
+    return apiFetch<MaintenanceListResponse>(
+      `/api/v1/maintenance${qs ? `?${qs}` : ""}`,
+      { auth: true },
+    );
+  },
+  getStats() {
+    return apiFetch<MaintenanceStats>("/api/v1/maintenance/stats", {
+      auth: true,
+    });
+  },
+  getById(id: string) {
+    return apiFetch<MaintenanceItem>(`/api/v1/maintenance/${id}`, {
+      auth: true,
+    });
+  },
+  create(data: CreateMaintenanceInput) {
+    return apiFetch<MaintenanceItem>("/api/v1/maintenance", {
+      method: "POST",
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  update(id: string, data: Partial<CreateMaintenanceInput>) {
+    return apiFetch<MaintenanceItem>(`/api/v1/maintenance/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  remove(id: string) {
+    return apiFetch<{ message: string }>(`/api/v1/maintenance/${id}`, {
+      method: "DELETE",
       auth: true,
     });
   },

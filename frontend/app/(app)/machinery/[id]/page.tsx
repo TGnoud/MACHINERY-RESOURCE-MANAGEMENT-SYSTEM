@@ -11,6 +11,7 @@ import {
   Timer,
   Trash2,
   Truck,
+  Wrench,
 } from "lucide-react";
 
 import {
@@ -22,6 +23,7 @@ import {
 import {
   getStoredUser,
   machineryApi,
+  type MaintenanceItem,
   type MachineryItem,
 } from "@/lib/api";
 
@@ -37,6 +39,21 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
   MAINTENANCE: {
     label: "Bảo trì",
     className: "bg-red-50 text-red-700 border-red-200",
+  },
+};
+
+const MAINTENANCE_STATUS_MAP: Record<string, { label: string; className: string }> = {
+  PENDING: {
+    label: "Lên lịch",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  IN_PROGRESS: {
+    label: "Đang bảo trì",
+    className: "bg-sky-50 text-sky-700 border-sky-200",
+  },
+  COMPLETED: {
+    label: "Hoàn thành",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
 };
 
@@ -76,7 +93,7 @@ export default function MachineryDetailPage() {
     setImgSrc(fallbackUrl);
   };
 
-  const [maintenanceLogs, setMaintenanceLogs] = useState<any[]>([]);
+  const [maintenanceLogs, setMaintenanceLogs] = useState<MaintenanceItem[]>([]);
   const [loadingMaintenance, setLoadingMaintenance] = useState(false);
   const [assignments, setAssignments] = useState<any[]>([]);
   const [loadingAssignments, setLoadingAssignments] = useState(false);
@@ -100,21 +117,20 @@ export default function MachineryDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (activeTab === "maintenance") {
-      async function fetchMaintenance() {
-        setLoadingMaintenance(true);
-        try {
-          const data = await machineryApi.getMaintenance(id);
-          setMaintenanceLogs(data);
-        } catch (err) {
-          console.error("Failed to fetch maintenance logs:", err);
-        } finally {
-          setLoadingMaintenance(false);
-        }
+    async function fetchMaintenance() {
+      setLoadingMaintenance(true);
+      try {
+        const data = await machineryApi.getMaintenance(id);
+        setMaintenanceLogs(data);
+      } catch (err) {
+        console.error("Failed to fetch maintenance logs:", err);
+      } finally {
+        setLoadingMaintenance(false);
       }
-      fetchMaintenance();
     }
-  }, [activeTab, id]);
+
+    fetchMaintenance();
+  }, [id]);
 
   useEffect(() => {
     if (activeTab === "assignments") {
@@ -207,6 +223,10 @@ export default function MachineryDetailPage() {
   ];
 
   const specsEntries = Object.entries(machinery.specs ?? {});
+  const latestMaintenance = maintenanceLogs[0];
+  const latestMaintenanceStatus = latestMaintenance
+    ? MAINTENANCE_STATUS_MAP[latestMaintenance.status]
+    : null;
 
   return (
     <PagePad>
@@ -364,6 +384,47 @@ export default function MachineryDetailPage() {
                 />
               </div>
 
+              <Card className="rounded-3xl p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <div className="mb-3 flex items-center gap-2">
+                      <Wrench className="size-5 text-sky-700" />
+                      <h2 className="text-xl font-bold text-slate-950">
+                        Trạng thái bảo trì
+                      </h2>
+                    </div>
+                    {loadingMaintenance ? (
+                      <p className="text-sm text-slate-500">Đang tải lịch sử bảo trì...</p>
+                    ) : latestMaintenance ? (
+                      <>
+                        <p className="text-sm leading-6 text-slate-600">
+                          {latestMaintenance.description}
+                        </p>
+                        <p className="mt-2 text-xs font-semibold text-slate-500">
+                          Cập nhật:{" "}
+                          {new Date(latestMaintenance.createdAt).toLocaleDateString("vi-VN")}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-slate-500">
+                        Thiết bị này chưa có lịch sử bảo trì.
+                      </p>
+                    )}
+                  </div>
+                  {latestMaintenanceStatus ? (
+                    <span
+                      className={`inline-flex shrink-0 rounded-full border px-3 py-1 text-xs font-bold whitespace-nowrap ${latestMaintenanceStatus.className}`}
+                    >
+                      {latestMaintenanceStatus.label}
+                    </span>
+                  ) : (
+                    <span className="inline-flex shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                      Chưa có phiếu mở
+                    </span>
+                  )}
+                </div>
+              </Card>
+
               {/* Specs card */}
               <Card className="rounded-3xl p-6">
                 <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4">
@@ -450,7 +511,7 @@ export default function MachineryDetailPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-sm">
-                      {maintenanceLogs.map((log: any) => {
+                      {maintenanceLogs.map((log) => {
                         const priorityColors = 
                           log.priority === 'HIGH' ? 'bg-red-50 text-red-700 border-red-200 font-bold' :
                           log.priority === 'MEDIUM' ? 'bg-amber-50 text-amber-700 border-amber-200 font-bold' :
@@ -462,16 +523,21 @@ export default function MachineryDetailPage() {
                           'bg-amber-50 text-amber-700 border-amber-200 font-bold';
 
                         return (
-                          <tr key={log._id || log.id} className="hover:bg-slate-50/50 transition">
+                          <tr key={log._id} className="hover:bg-slate-50/50 transition">
                             <td className="px-6 py-4 whitespace-nowrap font-medium text-slate-900">
-                              {log.startDate ? new Date(log.startDate).toLocaleDateString('vi-VN') : '—'}
-                              {log.endDate ? ` - ${new Date(log.endDate).toLocaleDateString('vi-VN')}` : ''}
+                              {new Date(log.createdAt).toLocaleDateString('vi-VN')}
+                              {log.completedAt ? ` - ${new Date(log.completedAt).toLocaleDateString('vi-VN')}` : ''}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-slate-700 font-semibold">
-                              {log.technician?.fullName || log.technicianName || '—'}
+                              {log.technician?.fullName || '—'}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-slate-600 font-medium">
-                              {log.type === 'PREVENTIVE' ? 'Định kỳ' : log.type === 'CORRECTIVE' ? 'Sự cố' : log.type || '—'}
+                              {{
+                                ROUTINE: 'Định kỳ',
+                                EMERGENCY: 'Khẩn cấp',
+                                INSPECTION: 'Kiểm tra',
+                                REPLACEMENT: 'Thay thế',
+                              }[log.type] ?? log.type}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs whitespace-nowrap ${priorityColors}`}>
@@ -489,8 +555,8 @@ export default function MachineryDetailPage() {
                             <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={log.description}>
                               {log.description || '—'}
                             </td>
-                            <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={log.sparePartsUsed?.join(', ')}>
-                              {log.sparePartsUsed && log.sparePartsUsed.length > 0 ? log.sparePartsUsed.join(', ') : '—'}
+                            <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={log.spareParts?.map((part) => part.name).join(', ')}>
+                              {log.spareParts && log.spareParts.length > 0 ? log.spareParts.map((part) => part.name).join(', ') : '—'}
                             </td>
                           </tr>
                         );
