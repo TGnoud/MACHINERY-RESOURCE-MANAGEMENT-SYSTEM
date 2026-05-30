@@ -522,6 +522,18 @@ function specsForMayEpCoc(r1, r2, r3, r4) {
   };
 }
 
+function getVietnameseName(role, index) {
+  const familyNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng'];
+  const middleNames = ['Văn', 'Thị', 'Minh', 'Thanh', 'Đức', 'Hữu', 'Anh', 'Ngọc', 'Quang', 'Khánh'];
+  const lastNames = ['Hùng', 'Hải', 'Tuấn', 'Anh', 'Duy', 'Linh', 'Trang', 'Phương', 'Nam', 'Sơn', 'Dũng', 'Thảo', 'Cường', 'Quân', 'Bình', 'Huy', 'Minh', 'Khang', 'Long', 'Đạt'];
+
+  const f = familyNames[index % familyNames.length];
+  const m = middleNames[(index * 3) % middleNames.length];
+  const l = lastNames[(index * 7) % lastNames.length];
+
+  return `${f} ${m} ${l}`;
+}
+
 const SPEC_GENERATORS = {
   'Máy xúc': specsForMayXuc,
   'Cần cẩu': specsForCanCau,
@@ -559,14 +571,53 @@ async function seed() {
   // Smart Upsert Users
   const passwordHash = await bcrypt.hash('Gnoud@123456', 12);
   const users = [];
+  const adminEmail = 'admin@gnoudcrm.vn';
+
   for (const [fullName, email, role] of primaryUsers) {
     let u = await User.findOne({ email });
     if (!u) {
       u = await User.create({ fullName, email, role, status: 'ACTIVE', passwordHash });
       console.log(`Created user: ${email}`);
+    } else if (u.role !== role) {
+      u.role = role;
+      await u.save();
+      console.log(`Updated user role: ${email} -> ${role}`);
     }
     users.push(u);
   }
+
+  // Generate 50 extra dispatchers programmatically (idempotently)
+  for (let i = 1; i <= 50; i++) {
+    const email = `dispatcher.${String(i).padStart(3, '0')}@gnoudcrm.vn`;
+    const fullName = getVietnameseName('DISPATCHER', i);
+    let u = await User.findOne({ email });
+    if (!u) {
+      u = await User.create({ fullName, email, role: 'DISPATCHER', status: 'ACTIVE', passwordHash });
+      console.log(`Created dispatcher user: ${email}`);
+    }
+    users.push(u);
+  }
+
+  // Generate 50 extra technicians programmatically (idempotently)
+  for (let i = 1; i <= 50; i++) {
+    const email = `tech.${String(i).padStart(3, '0')}@gnoudcrm.vn`;
+    const fullName = getVietnameseName('TECHNICIAN', i);
+    let u = await User.findOne({ email });
+    if (!u) {
+      u = await User.create({ fullName, email, role: 'TECHNICIAN', status: 'ACTIVE', passwordHash });
+      console.log(`Created technician user: ${email}`);
+    }
+    users.push(u);
+  }
+
+  // Enforce strictly 1 ADMIN: find any other users with role ADMIN and demote
+  const otherAdmins = await User.find({ role: 'ADMIN', email: { $ne: adminEmail } });
+  for (const otherAdmin of otherAdmins) {
+    otherAdmin.role = 'DISPATCHER';
+    await otherAdmin.save();
+    console.log(`Demoted non-primary ADMIN account to DISPATCHER: ${otherAdmin.email}`);
+  }
+
   const technicians = users.filter((user) => user.role === 'TECHNICIAN');
   const dispatchers = users.filter((user) => user.role === 'DISPATCHER');
 

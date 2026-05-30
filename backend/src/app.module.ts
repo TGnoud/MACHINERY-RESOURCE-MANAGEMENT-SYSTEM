@@ -23,6 +23,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
 import { AssignmentsModule } from './assignments/assignments.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { AssignmentsModule } from './assignments/assignments.module';
     CategoriesModule,
     UploadModule,
     AssignmentsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

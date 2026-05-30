@@ -16,6 +16,7 @@ import {
   Menu,
   Search,
   UserCircle,
+  Users,
 } from "lucide-react";
 import { getStoredUser, authApi, clearAuthSession } from "@/lib/api";
 
@@ -50,6 +51,12 @@ const navItems: NavItem[] = [
     href: "/maintenance",
     icon: ClipboardList,
     match: (pathname) => pathname.startsWith("/maintenance"),
+  },
+  {
+    label: "Tài khoản",
+    href: "/accounts",
+    icon: Users,
+    match: (pathname) => pathname.startsWith("/accounts"),
   },
 ];
 
@@ -108,6 +115,12 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [user] = useState(() => getStoredUser());
+  const visibleNavItems = navItems.filter((item) => {
+    if (item.href === "/accounts") {
+      return user?.role === "ADMIN";
+    }
+    return true;
+  });
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -146,7 +159,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="fixed left-0 top-0 z-50 hidden h-screen w-[280px] flex-col border-r border-slate-200 bg-white px-4 py-6 md:flex">
         <Brand />
         <nav className="mt-10 flex flex-1 flex-col gap-2">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <SidebarLink
               key={item.label}
               item={item}
@@ -393,6 +406,7 @@ const BREADCRUMB_MAP: Record<string, string> = {
   "Lịch trình": "/assignments",
   "Nhật ký bảo trì": "/maintenance",
   "Cài đặt": "/profile",
+  "Tài khoản": "/accounts",
 };
 
 function Breadcrumbs({

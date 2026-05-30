@@ -601,3 +601,88 @@ export const maintenanceApi = {
     });
   },
 };
+
+// --- Users Management Types ---
+
+export type UserItem = {
+  _id: string;
+  id: string;
+  fullName: string;
+  email: string;
+  role: UserRole;
+  status: UserStatus;
+  lastLoginAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UserListResponse = {
+  data: UserItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type UserQueryParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: UserRole;
+  status?: UserStatus;
+};
+
+export type UserStatsResponse = {
+  total: number;
+  admin: number;
+  dispatcher: number;
+  technician: number;
+};
+
+export const usersApi = {
+  getAll(params?: UserQueryParams) {
+    const query = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          query.set(key, String(value));
+        }
+      });
+    }
+    const qs = query.toString();
+    return apiFetch<UserListResponse>(`/api/v1/users${qs ? `?${qs}` : ""}`, {
+      auth: true,
+    });
+  },
+  getStats() {
+    return apiFetch<UserStatsResponse>("/api/v1/users/stats", {
+      auth: true,
+    });
+  },
+  getById(id: string) {
+    return apiFetch<UserItem>(`/api/v1/users/${id}`, {
+      auth: true,
+    });
+  },
+  create(data: Record<string, unknown>) {
+    return apiFetch<UserItem>("/api/v1/users", {
+      method: "POST",
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  update(id: string, data: Record<string, unknown>) {
+    return apiFetch<UserItem>(`/api/v1/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  remove(id: string) {
+    return apiFetch<{ message: string }>(`/api/v1/users/${id}`, {
+      method: "DELETE",
+      auth: true,
+    });
+  },
+};
+
