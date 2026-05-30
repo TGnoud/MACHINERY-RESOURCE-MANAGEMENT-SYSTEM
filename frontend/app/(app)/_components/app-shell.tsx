@@ -71,7 +71,7 @@ const pageMeta: Record<
   "/assignments/new": { breadcrumbs: ["Lịch trình", "Tạo phiếu điều phối mới"] },
   "/maintenance": { breadcrumbs: ["Nhật ký bảo trì"] },
   "/maintenance/new": { breadcrumbs: ["Nhật ký bảo trì", "Tạo phiếu bảo trì"] },
-  "/accounts": { search: "Tìm kiếm tài khoản…" },
+  "/accounts": { breadcrumbs: ["Tài khoản"] },
   "/profile": { breadcrumbs: ["Cài đặt", "Hồ sơ cá nhân"] },
   "/403": { search: "Search…", disabled: true },
 };
