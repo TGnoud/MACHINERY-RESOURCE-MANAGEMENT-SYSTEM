@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
 import { Model, Types } from 'mongoose';
 import {
   Assignment,
@@ -12,6 +13,7 @@ import {
   MaintenanceStatus,
 } from '../maintenance/schemas/maintenance-log.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 type ActivityTone = 'maintenance' | 'assignment';
@@ -67,6 +69,35 @@ export class ProfileService {
     }
 
     return this.toProfileUser(user);
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    if (dto.currentPassword === dto.newPassword) {
+      throw new BadRequestException('Mật khẩu mới phải khác mật khẩu hiện tại.');
+    }
+
+    const user = await this.userModel
+      .findById(userId)
+      .select('+passwordHash')
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('Tài khoản không tồn tại.');
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Mật khẩu hiện tại không đúng.');
+    }
+
+    user.passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    await user.save();
+
+    return { message: 'Đổi mật khẩu thành công.' };
   }
 
   async getActivities(userId: string, limit: number): Promise<ProfileActivity[]> {

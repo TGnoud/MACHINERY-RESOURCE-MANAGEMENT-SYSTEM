@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, Save, ShieldCheck, X } from "lucide-react";
+import { Camera, KeyRound, Save, ShieldCheck, X } from "lucide-react";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -41,8 +41,14 @@ function ProfileContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     async function loadProfile() {
@@ -122,6 +128,47 @@ function ProfileContent() {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  }
+
+  async function handleChangePassword() {
+    setError("");
+    setMessage("");
+
+    if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+      setError("Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới.");
+      return;
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      setError("Mật khẩu mới phải có ít nhất 8 ký tự.");
+      return;
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setError("Xác nhận mật khẩu mới không khớp.");
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const result = await profileApi.changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      setPasswordForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setMessage(result.message);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Không thể đổi mật khẩu.",
+      );
+    } finally {
+      setIsChangingPassword(false);
     }
   }
 
@@ -242,6 +289,56 @@ function ProfileContent() {
                 </>
               )}
             </Card>
+
+            <Card className="p-6">
+              <SectionTitle>Đổi mật khẩu</SectionTitle>
+              <div className="grid gap-4 md:grid-cols-3">
+                <PasswordInput
+                  label="Mật khẩu hiện tại"
+                  onChange={(value) =>
+                    setPasswordForm((current) => ({
+                      ...current,
+                      currentPassword: value,
+                    }))
+                  }
+                  value={passwordForm.currentPassword}
+                />
+                <PasswordInput
+                  label="Mật khẩu mới"
+                  onChange={(value) =>
+                    setPasswordForm((current) => ({
+                      ...current,
+                      newPassword: value,
+                    }))
+                  }
+                  value={passwordForm.newPassword}
+                />
+                <PasswordInput
+                  label="Xác nhận mật khẩu"
+                  onChange={(value) =>
+                    setPasswordForm((current) => ({
+                      ...current,
+                      confirmPassword: value,
+                    }))
+                  }
+                  value={passwordForm.confirmPassword}
+                />
+              </div>
+              <div className="mt-6 flex justify-end border-t border-slate-200 pt-4">
+                <PrimaryButton
+                  disabled={
+                    isChangingPassword ||
+                    !passwordForm.currentPassword ||
+                    !passwordForm.newPassword ||
+                    !passwordForm.confirmPassword
+                  }
+                  onClick={handleChangePassword}
+                >
+                  <KeyRound className="size-4" />
+                  {isChangingPassword ? "Đang đổi..." : "Đổi mật khẩu"}
+                </PrimaryButton>
+              </div>
+            </Card>
           </div>
 
           <Card className="p-6 lg:col-span-4">
@@ -326,6 +423,29 @@ function TextInput({
         onChange={(event) => onChange?.(event.target.value)}
         readOnly={!onChange}
         type="text"
+        value={value}
+      />
+    </label>
+  );
+}
+
+function PasswordInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="space-y-2">
+      <span className="block text-sm font-bold text-slate-700">{label}</span>
+      <input
+        autoComplete="new-password"
+        className="h-10 w-full rounded-lg border border-slate-300 bg-slate-50 px-3 text-sm text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10"
+        onChange={(event) => onChange(event.target.value)}
+        type="password"
         value={value}
       />
     </label>

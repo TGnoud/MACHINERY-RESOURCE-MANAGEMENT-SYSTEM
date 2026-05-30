@@ -290,6 +290,13 @@ export const profileApi = {
       auth: true,
     });
   },
+  changePassword(data: { currentPassword: string; newPassword: string }) {
+    return apiFetch<{ message: string }>("/api/v1/profile/password", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
   getActivities(limit = 10) {
     return apiFetch<ProfileActivity[]>(
       `/api/v1/profile/activities?limit=${limit}`,
