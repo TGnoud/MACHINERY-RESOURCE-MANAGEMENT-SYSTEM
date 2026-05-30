@@ -24,6 +24,7 @@ import { AppService } from './app.service';
 import { UploadModule } from './upload/upload.module';
 import { AssignmentsModule } from './assignments/assignments.module';
 import { UsersModule } from './users/users.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { UsersModule } from './users/users.module';
     UploadModule,
     AssignmentsModule,
     UsersModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

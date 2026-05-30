@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Lock, Mail, Shield, User } from "lucide-react";
+import { ArrowRight, Lock, Mail, Shield, User, ChevronDown, Users } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { ApiError, authApi, storeAuthSession } from "../../../lib/api";
@@ -32,6 +32,7 @@ export default function RegisterPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      role: "DISPATCHER",
       acceptTerms: false,
     },
   });
@@ -45,6 +46,7 @@ export default function RegisterPage() {
         fullName: values.fullName,
         email: values.email,
         password: values.password,
+        role: values.role,
       });
 
       storeAuthSession(auth);
@@ -126,6 +128,29 @@ export default function RegisterPage() {
             error={errors.confirmPassword?.message}
             {...register("confirmPassword")}
           />
+
+          <div className="space-y-1.5">
+            <label htmlFor="role" className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+              <Users className="size-4 text-slate-400" />
+              Bạn đăng ký với vai trò là gì?
+            </label>
+            <div className="relative mt-2">
+              <select
+                id="role"
+                className="h-12 w-full appearance-none rounded-lg border border-slate-200 bg-white px-4 pr-11 text-sm text-slate-800 outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer"
+                {...register("role")}
+              >
+                <option value="DISPATCHER">Điều phối viên (Dispatcher)</option>
+                <option value="TECHNICIAN">Kỹ thuật viên (Technician)</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-slate-500" />
+            </div>
+            {errors.role?.message && (
+              <p role="alert" className="text-sm text-red-600">
+                {errors.role.message}
+              </p>
+            )}
+          </div>
 
           <div className="space-y-1.5">
             <div className="flex items-start gap-3 text-sm text-slate-600">

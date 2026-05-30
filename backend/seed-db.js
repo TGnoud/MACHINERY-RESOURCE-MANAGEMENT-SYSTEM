@@ -569,53 +569,111 @@ async function seed() {
   );
 
   // Smart Upsert Users
+  await User.deleteMany({});
+  console.log('Cleared all old user accounts.');
+
   const passwordHash = await bcrypt.hash('Gnoud@123456', 12);
   const users = [];
-  const adminEmail = 'admin@gnoudcrm.vn';
 
-  for (const [fullName, email, role] of primaryUsers) {
-    let u = await User.findOne({ email });
-    if (!u) {
-      u = await User.create({ fullName, email, role, status: 'ACTIVE', passwordHash });
-      console.log(`Created user: ${email}`);
-    } else if (u.role !== role) {
-      u.role = role;
-      await u.save();
-      console.log(`Updated user role: ${email} -> ${role}`);
+  // Helper to load uit_member names
+  const fs = require('fs');
+  const path = require('path');
+  let uitMembers = [];
+  try {
+    const absolutePath = 'c:\\Users\\Thai Duong\\Desktop\\GR1\\uit_member.json';
+    const relativePath = path.join(__dirname, '../uit_member.json');
+    const targetPath = fs.existsSync(absolutePath) ? absolutePath : relativePath;
+    
+    if (fs.existsSync(targetPath)) {
+      const content = fs.readFileSync(targetPath, 'utf8');
+      uitMembers = JSON.parse(content);
+      console.log(`Loaded ${uitMembers.length} names from uit_member.json`);
     }
-    users.push(u);
+  } catch (e) {
+    console.error('Error loading uit_member.json:', e);
   }
 
-  // Generate 50 extra dispatchers programmatically (idempotently)
+  // Fallback if loading failed
+  if (uitMembers.length === 0) {
+    console.log('Fallback: Loading sample names');
+    uitMembers = [
+      { full_name: 'Nguyễn Thị Như Quỳnh' },
+      { full_name: 'Lê Hoàng Quân' },
+      { full_name: 'Đinh Văn Phượng' }
+    ];
+  }
+
+  // Name to email helper with duplicate weighting
+  const emailMap = new Map();
+  function getUniqueEmail(fullName) {
+    // Normalize and strip accents
+    let normalized = fullName.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+    // Replace Đ/đ
+    normalized = normalized.replace(/đ/g, 'd').replace(/Đ/g, 'd');
+    normalized = normalized.toLowerCase().trim();
+    
+    const parts = normalized.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'user@gnoudcrm.vn';
+    
+    const givenName = parts[parts.length - 1];
+    const otherInitials = parts.slice(0, parts.length - 1).map(p => p[0]).join('');
+    
+    const base = givenName + otherInitials;
+    if (!emailMap.has(base)) {
+      emailMap.set(base, 0);
+      return `${base}@gnoudcrm.vn`;
+    } else {
+      const currentWeight = emailMap.get(base) + 1;
+      emailMap.set(base, currentWeight);
+      return `${base}${currentWeight}@gnoudcrm.vn`;
+    }
+  }
+
+  // Create Admin
+  const adminName = uitMembers[0]?.full_name || 'Nguyễn Thị Như Quỳnh';
+  const adminEmail = getUniqueEmail(adminName);
+  const adminUser = await User.create({
+    fullName: adminName,
+    email: adminEmail,
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    passwordHash,
+    lastLoginAt: new Date(Date.now() - Math.floor(Math.random() * 5 * 24 * 60 * 60 * 1000)),
+  });
+  console.log(`Created Admin user: ${adminName} (${adminEmail})`);
+  users.push(adminUser);
+
+  // Create 50 Dispatchers and 50 Technicians alternatingly
   for (let i = 1; i <= 50; i++) {
-    const email = `dispatcher.${String(i).padStart(3, '0')}@gnoudcrm.vn`;
-    const fullName = getVietnameseName('DISPATCHER', i);
-    let u = await User.findOne({ email });
-    if (!u) {
-      u = await User.create({ fullName, email, role: 'DISPATCHER', status: 'ACTIVE', passwordHash });
-      console.log(`Created dispatcher user: ${email}`);
-    }
-    users.push(u);
-  }
+    // 1. Create dispatcher
+    const dispMember = uitMembers[i] || { full_name: `Điều Phối Viên ${i}` };
+    const dispName = dispMember.full_name;
+    const dispEmail = getUniqueEmail(dispName);
+    const dispUser = await User.create({
+      fullName: dispName,
+      email: dispEmail,
+      role: 'DISPATCHER',
+      status: 'ACTIVE',
+      passwordHash,
+      lastLoginAt: new Date(Date.now() - Math.floor(Math.random() * 10 * 24 * 60 * 60 * 1000)),
+    });
+    console.log(`Created dispatcher user: ${dispName} (${dispEmail})`);
+    users.push(dispUser);
 
-  // Generate 50 extra technicians programmatically (idempotently)
-  for (let i = 1; i <= 50; i++) {
-    const email = `tech.${String(i).padStart(3, '0')}@gnoudcrm.vn`;
-    const fullName = getVietnameseName('TECHNICIAN', i);
-    let u = await User.findOne({ email });
-    if (!u) {
-      u = await User.create({ fullName, email, role: 'TECHNICIAN', status: 'ACTIVE', passwordHash });
-      console.log(`Created technician user: ${email}`);
-    }
-    users.push(u);
-  }
-
-  // Enforce strictly 1 ADMIN: find any other users with role ADMIN and demote
-  const otherAdmins = await User.find({ role: 'ADMIN', email: { $ne: adminEmail } });
-  for (const otherAdmin of otherAdmins) {
-    otherAdmin.role = 'DISPATCHER';
-    await otherAdmin.save();
-    console.log(`Demoted non-primary ADMIN account to DISPATCHER: ${otherAdmin.email}`);
+    // 2. Create technician
+    const techMember = uitMembers[50 + i] || { full_name: `Kỹ Thuật Viên ${i}` };
+    const techName = techMember.full_name;
+    const techEmail = getUniqueEmail(techName);
+    const techUser = await User.create({
+      fullName: techName,
+      email: techEmail,
+      role: 'TECHNICIAN',
+      status: 'ACTIVE',
+      passwordHash,
+      lastLoginAt: new Date(Date.now() - Math.floor(Math.random() * 10 * 24 * 60 * 60 * 1000)),
+    });
+    console.log(`Created technician user: ${techName} (${techEmail})`);
+    users.push(techUser);
   }
 
   const technicians = users.filter((user) => user.role === 'TECHNICIAN');
@@ -960,9 +1018,9 @@ async function seed() {
   });
   console.log('Login accounts:');
   console.table([
-    { email: 'admin@gnoudcrm.vn', password: 'Gnoud@123456' },
-    { email: 'dispatcher@gnoudcrm.vn', password: 'Gnoud@123456' },
-    { email: 'tech@gnoudcrm.vn', password: 'Gnoud@123456' },
+    { role: 'ADMIN', name: users[0].fullName, email: users[0].email, password: 'Gnoud@123456' },
+    { role: 'DISPATCHER', name: dispatchers[0].fullName, email: dispatchers[0].email, password: 'Gnoud@123456' },
+    { role: 'TECHNICIAN', name: technicians[0].fullName, email: technicians[0].email, password: 'Gnoud@123456' },
   ]);
 }
 

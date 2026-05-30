@@ -12,6 +12,7 @@ export const registerSchema = z
     email: z.string().trim().email("Email không hợp lệ."),
     password: z.string().min(8, "Mật khẩu cần tối thiểu 8 ký tự."),
     confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu."),
+    role: z.enum(["DISPATCHER", "TECHNICIAN"]),
     acceptTerms: z.boolean().refine((value) => value, {
       message: "Bạn cần đồng ý điều khoản và chính sách bảo mật.",
     }),

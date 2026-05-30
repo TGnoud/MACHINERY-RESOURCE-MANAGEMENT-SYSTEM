@@ -670,16 +670,21 @@ export default function AccountsPage() {
               <Shield className="size-4 text-slate-400" />
               Vai trò & Quyền hạn
             </label>
-            <select
-              id="form-role"
-              value={formRole}
-              onChange={(e) => setFormRole(e.target.value as UserRole)}
-              className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer"
-            >
-              <option value="ADMIN">ADMIN - Quản trị viên</option>
-              <option value="DISPATCHER">DISPATCHER - Điều phối viên</option>
-              <option value="TECHNICIAN">TECHNICIAN - Kỹ thuật viên</option>
-            </select>
+            {editingUser?.role === "ADMIN" ? (
+              <div className="h-11 w-full rounded-lg border border-slate-100 bg-slate-50 px-3.5 flex items-center text-sm font-semibold text-slate-500 select-none">
+                ADMIN - Quản trị viên (Không thể thay đổi)
+              </div>
+            ) : (
+              <select
+                id="form-role"
+                value={formRole}
+                onChange={(e) => setFormRole(e.target.value as UserRole)}
+                className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer"
+              >
+                <option value="DISPATCHER">DISPATCHER - Điều phối viên</option>
+                <option value="TECHNICIAN">TECHNICIAN - Kỹ thuật viên</option>
+              </select>
+            )}
           </div>
 
           {/* Status field */}
@@ -688,15 +693,21 @@ export default function AccountsPage() {
               <UserCheck className="size-4 text-slate-400" />
               Trạng thái hoạt động
             </label>
-            <select
-              id="form-status"
-              value={formStatus}
-              onChange={(e) => setFormStatus(e.target.value as UserStatus)}
-              className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer"
-            >
-              <option value="ACTIVE">ACTIVE - Hoạt động bình thường</option>
-              <option value="DISABLED">DISABLED - Vô hiệu hóa truy cập</option>
-            </select>
+            {editingUser?.id === currentUser?.id ? (
+              <div className="h-11 w-full rounded-lg border border-slate-100 bg-slate-50 px-3.5 flex items-center text-sm font-semibold text-slate-500 select-none">
+                ACTIVE - Hoạt động bình thường (Không thể thay đổi)
+              </div>
+            ) : (
+              <select
+                id="form-status"
+                value={formStatus}
+                onChange={(e) => setFormStatus(e.target.value as UserStatus)}
+                className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3.5 text-sm text-slate-800 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 cursor-pointer"
+              >
+                <option value="ACTIVE">ACTIVE - Hoạt động bình thường</option>
+                <option value="DISABLED">DISABLED - Vô hiệu hóa truy cập</option>
+              </select>
+            )}
           </div>
         </form>
 

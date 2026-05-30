@@ -52,7 +52,7 @@ export class AuthService {
       fullName: registerDto.fullName.trim(),
       email,
       passwordHash,
-      role: UserRole.Dispatcher,
+      role: registerDto.role || UserRole.Dispatcher,
       status: UserStatus.Active,
     });
 
@@ -172,6 +172,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       status: user.status,
+      avatarUrl: user.avatarUrl,
     };
   }
 

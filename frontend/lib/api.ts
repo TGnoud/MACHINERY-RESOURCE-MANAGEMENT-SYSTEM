@@ -28,6 +28,7 @@ export type AuthUser = {
   email: string;
   role: UserRole;
   status: UserStatus;
+  avatarUrl?: string;
 };
 
 export type AuthTokens = {
@@ -131,6 +132,23 @@ export function storeAuthSession(auth: AuthResponse) {
   window.localStorage.setItem(tokenStorageKeys.user, JSON.stringify(auth.user));
 }
 
+export function updateStoredUser(user: Partial<AuthUser>) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const currentUser = getStoredUser();
+
+  if (!currentUser) {
+    return;
+  }
+
+  window.localStorage.setItem(
+    tokenStorageKeys.user,
+    JSON.stringify({ ...currentUser, ...user }),
+  );
+}
+
 export function clearAuthSession() {
   if (typeof window === "undefined") {
     return;
@@ -188,7 +206,7 @@ async function getErrorMessage(response: Response) {
 }
 
 export const authApi = {
-  register(input: { fullName: string; email: string; password: string }) {
+  register(input: { fullName: string; email: string; password: string; role?: string }) {
     return apiFetch<AuthResponse>("/api/v1/auth/register", {
       method: "POST",
       body: JSON.stringify(input),
@@ -234,6 +252,44 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify(input),
     });
+  },
+};
+
+export type ProfileUser = AuthUser & {
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ProfileActivity = {
+  id: string;
+  type: "maintenance" | "assignment";
+  title: string;
+  description: string;
+  status: string;
+  createdAt: string;
+  time: string;
+};
+
+export const profileApi = {
+  getMe() {
+    return apiFetch<ProfileUser>("/api/v1/profile", {
+      auth: true,
+    });
+  },
+  update(data: { fullName?: string; avatarUrl?: string }) {
+    return apiFetch<ProfileUser>("/api/v1/profile", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+      auth: true,
+    });
+  },
+  getActivities(limit = 10) {
+    return apiFetch<ProfileActivity[]>(
+      `/api/v1/profile/activities?limit=${limit}`,
+      {
+        auth: true,
+      },
+    );
   },
 };
 
@@ -685,4 +741,3 @@ export const usersApi = {
     });
   },
 };
-

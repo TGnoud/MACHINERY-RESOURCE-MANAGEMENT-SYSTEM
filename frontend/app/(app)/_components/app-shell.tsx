@@ -76,7 +76,7 @@ const pageMeta: Record<
   "/403": { search: "Search…", disabled: true },
 };
 
-const avatarUrl =
+const fallbackAvatarUrl =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuC_9N9lAiE7KfuW6gxc9WHUoqBmEI84t58qxkPf2w7rRRaL3InZJ3g0VRn7XG_1zuE588t_aBGD9BMZpfy9JZtHNduhvOVhk8_brXgobIuOPHhHiaj2lp3UTa9a7YCH3hH_n5yy8hqK_t54OyFDsylqpA-pMHX20NQocZhcge87n6Hy2IeKU2aqhxpbRhTmXIz--rsxnRlmoRjkHA9XMzjM4M1Gf1-dtKJQFhhJ6ydqFI1c-LCvfC7Lwf5MfcZ6ZY0bR2MzeVUXgGw";
 
 const recentActivities = [
@@ -115,6 +115,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [user] = useState(() => getStoredUser());
+  const avatarUrl = user?.avatarUrl || fallbackAvatarUrl;
   const visibleNavItems = navItems.filter((item) => {
     if (item.href === "/accounts") {
       return user?.role === "ADMIN";

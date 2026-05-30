@@ -7,6 +7,7 @@ export type PublicUser = {
   email: string;
   role: UserRole;
   status: UserStatus;
+  avatarUrl?: string;
 };
 
 export type AuthenticatedUser = PublicUser;

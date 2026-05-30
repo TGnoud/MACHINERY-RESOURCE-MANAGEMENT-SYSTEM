@@ -46,6 +46,9 @@ export class User {
   @Prop({ select: false })
   refreshTokenHash?: string;
 
+  @Prop({ trim: true })
+  avatarUrl?: string;
+
   @Prop({ select: false })
   resetPasswordTokenHash?: string;
 

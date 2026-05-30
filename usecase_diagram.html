@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sơ đồ Use Case tối giản chuẩn UML - Hệ thống Quản lý Thiết bị</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       1. THEME VARIABLES SYSTEM
+       ========================================================================== */
+    :root {
+      --body-bg: radial-gradient(ellipse at bottom, #0f172a 0%, #020617 100%);
+      --body-text: #f1f5f9;
+      --card-bg: rgba(15, 23, 42, 0.6);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --sidebar-border: rgba(255, 255, 255, 0.05);
+      --accent-color: #f97316;
+      --accent-hover: #ea580c;
+      
+      /* Diagram Specific */
+      --bg-diagram: #ffffff;
+      --border-diagram: #0f2c59;
+      --grid-color: #e2e8f0;
+      
+      --usecase-bg: #f26a00;
+      --usecase-stroke: #0f2c59;
+      --usecase-text: #ffffff;
+      
+      --actor-stroke: #0f2c59;
+      --actor-head-fill: #ff6f00;
+      --actor-text: #0f2c59;
+      
+      --line-solid: #ff9800;
+      --line-dashed: #ff9800;
+      --text-label: #0f2c59;
+    }
+
+    [data-theme="classic"] {
+      --bg-diagram: #ffffff;
+      --border-diagram: #0f2c59;
+      --grid-color: #f1f5f9;
+      --usecase-bg: #f26a00;
+      --usecase-stroke: #0f2c59;
+      --usecase-text: #ffffff;
+      --actor-stroke: #0f2c59;
+      --actor-head-fill: #ff6f00;
+      --actor-text: #0f2c59;
+      --line-solid: #ff9800;
+      --line-dashed: #ff9800;
+      --text-label: #0f2c59;
+    }
+
+    [data-theme="corporate"] {
+      --bg-diagram: #f8fafc;
+      --border-diagram: #1e3a8a;
+      --grid-color: #e2e8f0;
+      --usecase-bg: #2563eb;
+      --usecase-stroke: #1e3a8a;
+      --usecase-text: #ffffff;
+      --actor-stroke: #1e3a8a;
+      --actor-head-fill: #3b82f6;
+      --actor-text: #1e3a8a;
+      --line-solid: #3b82f6;
+      --line-dashed: #60a5fa;
+      --text-label: #1e3a8a;
+    }
+
+    [data-theme="cyberpunk"] {
+      --bg-diagram: #0f172a;
+      --border-diagram: #38bdf8;
+      --grid-color: rgba(56, 189, 248, 0.05);
+      --usecase-bg: #ec4899;
+      --usecase-stroke: #38bdf8;
+      --usecase-text: #ffffff;
+      --actor-stroke: #38bdf8;
+      --actor-head-fill: #e11d48;
+      --actor-text: #38bdf8;
+      --line-solid: #f43f5e;
+      --line-dashed: #38bdf8;
+      --text-label: #38bdf8;
+    }
+
+    [data-theme="emerald"] {
+      --bg-diagram: #f0fdf4;
+      --border-diagram: #064e3b;
+      --grid-color: #dcfce7;
+      --usecase-bg: #10b981;
+      --usecase-stroke: #064e3b;
+      --usecase-text: #ffffff;
+      --actor-stroke: #064e3b;
+      --actor-head-fill: #34d399;
+      --actor-text: #064e3b;
+      --line-solid: #10b981;
+      --line-dashed: #059669;
+      --text-label: #064e3b;
+    }
+
+    /* ==========================================================================
+       2. LAYOUT & UI STYLING
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--body-bg);
+      color: var(--body-text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s ease;
+    }
+
+    header {
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--sidebar-border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #f1f5f9, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+
+    .main-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      height: calc(100vh - 71px);
+    }
+
+    /* Sidebar Panel */
+    .sidebar {
+      background: rgba(15, 23, 42, 0.25);
+      border-right: 1px solid var(--sidebar-border);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--sidebar-border);
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Theme Selectors */
+    .theme-selector {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .theme-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .theme-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    .theme-btn.active {
+      background: rgba(249, 115, 22, 0.15);
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    /* Control Buttons */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--accent-color);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* Grid Switch */
+    .grid-toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 22px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: .3s;
+      border-radius: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+      background-color: #fff;
+    }
+
+    /* Instruction details */
+    .instruction-item {
+      display: flex;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+
+    .number-badge {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--accent-color);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    /* Diagram Canvas */
+    .canvas-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .diagram-card {
+      background: var(--bg-diagram);
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* ==========================================================================
+       3. SCREENSHOT MODE STYLING
+       ========================================================================== */
+    .close-screenshot-btn {
+      display: none;
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 10000;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 24px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .close-screenshot-btn:hover {
+      background: var(--accent-color);
+      transform: scale(1.05);
+    }
+
+    body.screenshot-mode {
+      background: var(--bg-diagram) !important;
+    }
+
+    body.screenshot-mode header,
+    body.screenshot-mode .sidebar {
+      display: none !important;
+    }
+
+    body.screenshot-mode .main-container {
+      grid-template-columns: 1fr !important;
+      height: 100vh !important;
+    }
+
+    body.screenshot-mode .canvas-container {
+      background: var(--bg-diagram) !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      height: 100vh !important;
+      width: 100vw !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    body.screenshot-mode .diagram-card {
+      box-shadow: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      background: var(--bg-diagram) !important;
+      transform: scale(1);
+    }
+
+    body.screenshot-mode .close-screenshot-btn {
+      display: block !important;
+    }
+
+    /* ==========================================================================
+       4. SVG DIAGRAM COMPONENT STYLING
+       ========================================================================== */
+    svg {
+      user-select: none;
+      background-color: var(--bg-diagram);
+      transition: background-color 0.3s ease;
+    }
+
+    .system-boundary {
+      transition: all 0.3s ease;
+    }
+
+    /* SOLID Relationship lines */
+    .rel-line-solid {
+      stroke: var(--line-solid);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke 0.3s ease;
+    }
+
+    /* DASHED Relationship lines (include/extend) */
+    .rel-line-dashed {
+      stroke: var(--line-dashed);
+      stroke-width: 2;
+      stroke-dasharray: 6 5;
+      fill: none;
+      transition: stroke 0.3s ease;
+    }
+
+    /* Use Case Oval */
+    .usecase-ellipse {
+      fill: var(--usecase-bg);
+      stroke: var(--usecase-stroke);
+      stroke-width: 2.5;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .usecase:hover .usecase-ellipse {
+      transform: scale(1.03);
+      filter: brightness(1.08);
+    }
+
+    .usecase-text {
+      fill: var(--usecase-text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 14.5px;
+      transition: fill 0.3s ease;
+      pointer-events: none;
+    }
+
+    /* Labels on lines */
+    .stereotype-label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      fill: var(--text-label);
+      transition: fill 0.3s ease;
+    }
+
+    /* Actors */
+    .actor-circle {
+      fill: var(--actor-head-fill);
+      stroke: var(--actor-stroke);
+      stroke-width: 4;
+      transition: all 0.3s ease;
+    }
+
+    .actor-line {
+      stroke: var(--actor-stroke);
+      stroke-width: 4;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke 0.3s ease;
+    }
+
+    .actor-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      fill: var(--actor-text);
+      transition: fill 0.3s ease;
+    }
+
+    .actor-role {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      fill: var(--actor-text);
+      opacity: 0.8;
+      transition: fill 0.3s ease;
+    }
+  </style>
+</head>
+<body data-theme="classic">
+
+  <button class="close-screenshot-btn" onclick="exitScreenshotMode()">
+    ← Thoát Chế độ Chụp ảnh (Hoặc nhấn ESC)
+  </button>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-container">
+      <div class="logo-icon">M</div>
+      <div>
+        <h1>Hệ thống Quản lý Thiết bị - Sơ đồ Use Case Tối giản</h1>
+        <div class="subtitle">Bản vẽ thiết kế siêu tinh khiết chuẩn UML nguyên bản</div>
+      </div>
+    </div>
+    <div style="font-size: 0.8rem; color: #94a3b8; text-align: right;">
+      <span>Mô hình hóa UML tối giản</span><br>
+      <span style="color: var(--accent-color); font-weight: 600;">Clean &amp; Minimalist</span>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      
+      <!-- PHÂN QUYỀN CHUẨN CODE -->
+      <div>
+        <div class="section-title">Phong cách tối giản</div>
+        <div class="panel-card" style="font-size: 0.82rem; gap: 10px; line-height: 1.45;">
+          <div>
+            <strong style="color: var(--accent-color);">1. Cập nhật mới từ phản hồi:</strong>
+            <p style="color: #cbd5e1; margin-top: 2px;">Kỹ thuật viên (Technician) đã được bổ sung quyền **Tra cứu trạng thái thiết bị** cực kỳ chuẩn xác với API backend của bạn.</p>
+          </div>
+          <div>
+            <strong style="color: var(--accent-color);">2. Đường vẽ đi xuyên hoàn hảo:</strong>
+            <p style="color: #cbd5e1; margin-top: 2px;">Đường liên kết từ Technician sang lướt qua khe hở giữa 2 Use Case bên phải một cách mỹ thuật, hoàn toàn không chồng chéo.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- THEME SELECTOR -->
+      <div>
+        <div class="section-title">Chọn màu sơ đồ</div>
+        <div class="panel-card">
+          <div class="theme-selector">
+            <button class="theme-btn active" data-theme-id="classic" onclick="changeTheme('classic')">Classic (Cam)</button>
+            <button class="theme-btn" data-theme-id="corporate" onclick="changeTheme('corporate')">Corporate (Xanh)</button>
+            <button class="theme-btn" data-theme-id="cyberpunk" onclick="changeTheme('cyberpunk')">Cyberpunk</button>
+            <button class="theme-btn" data-theme-id="emerald" onclick="changeTheme('emerald')">Emerald (Lá)</button>
+          </div>
+          <div class="grid-toggle-container">
+            <span>Hiển thị đường lưới (Grid):</span>
+            <label class="switch">
+              <input type="checkbox" id="gridToggle" checked onchange="toggleGrid()">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXPORT ACTIONS -->
+      <div>
+        <div class="section-title">Xuất ảnh báo cáo</div>
+        <div class="panel-card" style="gap: 12px;">
+          <button class="btn" onclick="enterScreenshotMode()">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h3V2H4c-1.1 0-2 .9-2 2v3h2V4zm16 0h-3V2h3c1.1 0 2 .9 2 2v3h-2V4zM4 20h3v2H4c-1.1 0-2-.9-2-2v-3h2v3zm16 0h-3v2h3c1.1 0 2-.9 2-2v-3h-2v3zM12 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 8c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+            Bật Chế độ Chụp ảnh
+          </button>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <button class="btn btn-secondary" onclick="downloadSVG()">Tải SVG</button>
+            <button class="btn btn-secondary" onclick="downloadPNG()">Tải PNG</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSTRUCTIONS -->
+      <div>
+        <div class="section-title">Các bước thực hiện</div>
+        <div class="panel-card" style="gap: 10px;">
+          <div class="instruction-item">
+            <span class="number-badge">1</span>
+            <span>Chọn bảng màu sơ đồ phù hợp với slide báo cáo.</span>
+          </div>
+          <div class="instruction-item">
+            <span class="number-badge">2</span>
+            <span>Bấm nút <strong>"Bật Chế độ Chụp ảnh"</strong> để ẩn các menu thừa.</span>
+          </div>
+          <div class="instruction-item">
+            <span class="number-badge">3</span>
+            <span>Dùng phím chụp màn hình <code>Win+Shift+S</code> để lưu ảnh sạch sẽ.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN CANVAS -->
+    <div class="canvas-container" id="canvasContainer">
+      <div class="diagram-card" id="diagramCard">
+        
+        <!-- BẮT ĐẦU SVG SƠ ĐỒ KẾ THỪA CHUẨN UML TỐI GIẢN 100% -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="1300" height="1100" viewBox="0 0 1300 1100" id="usecaseSvg">
+          
+          <defs>
+            <pattern id="gridPattern" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--grid-color)" stroke-width="1" id="gridPath"/>
+            </pattern>
+            
+            <!-- Mũi tên đứt nét (include/extend) -->
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="none" stroke="var(--line-dashed)" stroke-width="2" stroke-linejoin="round"/>
+            </marker>
+
+            <!-- MŨI TÊN KẾ THỪA ACTOR CHUẨN UML (Closed Hollow Triangle) -->
+            <marker id="generalization-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+              <polygon points="0,0 10,5 0,10" fill="var(--bg-diagram)" stroke="var(--border-diagram)" stroke-width="1.8"/>
+            </marker>
+          </defs>
+
+          <!-- Nền lưới Grid -->
+          <rect width="100%" height="100%" fill="url(#gridPattern)" id="gridRect"/>
+
+          <!-- ==========================================================================
+               PHẦN 1. ĐƯỜNG KỂ KẾ THỪA VÀ LIÊN KẾT (GENERALIZATION & RELS)
+               ========================================================================== -->
+          <g class="relationships">
+            
+            <!-- 1.1 QUAN HỆ KẾ THỪA ACTOR TỐI GIẢN (KHÔNG CHỮ GIẢI THÍCH) -->
+            <!-- Admin (child) kế thừa Dispatcher (parent) -->
+            <path d="M 100 375 L 100 705" fill="none" stroke="var(--border-diagram)" stroke-width="2.5" marker-end="url(#generalization-arrow)" />
+
+            <!-- Admin (child) kế thừa Technician (parent) - Đi vuông góc ôm bên ngoài cực kỳ tinh tế -->
+            <path d="M 100 190 L 100 20 L 1180 20 L 1180 500" fill="none" stroke="var(--border-diagram)" stroke-width="2.5" marker-end="url(#generalization-arrow)" />
+
+
+            <!-- 1.2 ĐƯỜNG NỐI TỪ ACTOR ĐẾN CÁC USE CASE RIÊNG BIỆT -->
+            <!-- ADMIN CONNECTIONS (Top-Left: x=100, y=220) -->
+            <line x1="100" y1="220" x2="420" y2="140" class="rel-line-solid" /> 
+            <line x1="100" y1="220" x2="420" y2="260" class="rel-line-solid" /> 
+            <line x1="100" y1="220" x2="420" y2="380" class="rel-line-solid" /> 
+            <line x1="100" y1="220" x2="420" y2="500" class="rel-line-solid" /> 
+
+            <!-- DISPATCHER CONNECTIONS (Bottom-Left: x=100, y=780) -->
+            <line x1="100" y1="780" x2="420" y2="620" class="rel-line-solid" /> 
+            <line x1="100" y1="780" x2="420" y2="740" class="rel-line-solid" /> 
+            <line x1="100" y1="780" x2="420" y2="860" class="rel-line-solid" /> 
+            <line x1="100" y1="780" x2="420" y2="980" class="rel-line-solid" /> 
+
+            <!-- TECHNICIAN CONNECTIONS (Right-Middle: x=1180, y=570) -->
+            <line x1="1180" y1="570" x2="820" y2="350" class="rel-line-solid" /> 
+            <line x1="1180" y1="570" x2="820" y2="500" class="rel-line-solid" /> 
+            <line x1="1180" y1="570" x2="820" y2="650" class="rel-line-solid" /> 
+            <line x1="1180" y1="570" x2="820" y2="800" class="rel-line-solid" /> 
+            
+            <!-- Kỹ thuật viên (Technician) kết nối chéo sang "Tra cứu trạng thái thiết bị" -->
+            <!-- Đường thẳng này lách hoàn hảo qua khe giữa Y=500 và Y=650 ở cột phải mà không đè lên hình oval nào! -->
+            <line x1="1180" y1="570" x2="420" y2="620" class="rel-line-solid" /> 
+
+
+            <!-- 1.3 MỐI QUAN HỆ NỘI BỘ GIỮA CÁC USE CASES (DASHED ARROWS) -->
+            <!-- Cột trái (Admin & Dispatcher): -->
+            <!-- UC3 (Quản lý thiết bị) <<include>> UC4 (Quản lý danh mục thiết bị) -->
+            <path d="M 420 415 L 420 465" class="rel-line-dashed" marker-end="url(#arrow)" />
+            
+            <!-- UC5 (Lập lịch phân công thiết bị) <<include>> UC6 (Xem lịch trình phân công) -->
+            <path d="M 420 775 L 420 825" class="rel-line-dashed" marker-end="url(#arrow)" />
+            
+            <!-- UC7 (Cập nhật trạng thái phân công) <<extend>> UC6 (Xem lịch trình phân công) -->
+            <path d="M 420 945 L 420 895" class="rel-line-dashed" marker-end="url(#arrow)" />
+
+            <!-- Cột phải (Technician): -->
+            <!-- UC8 (Ghi nhận nhật ký bảo trì) <<include>> UC11 (Cập nhật phụ tùng thay thế) -->
+            <path d="M 820 385 L 820 465" class="rel-line-dashed" marker-end="url(#arrow)" />
+            
+            <!-- UC10 (Cập nhật trạng thái bảo trì) <<extend>> UC9 (Xem lịch sử bảo trì) -->
+            <path d="M 820 765 L 820 685" class="rel-line-dashed" marker-end="url(#arrow)" />
+
+          </g>
+
+          <!-- NHÃN QUAN HỆ <<include>> / <<extend>> TRÊN ĐƯỜNG KẺ -->
+          <g class="relationship-labels">
+            <!-- Cột Trái -->
+            <rect x="385" y="430" width="70" height="16" fill="var(--bg-diagram)" rx="3"/>
+            <text x="420" y="442" text-anchor="middle" class="stereotype-label">&lt;&lt;include&gt;&gt;</text>
+
+            <rect x="385" y="792" width="70" height="16" fill="var(--bg-diagram)" rx="3"/>
+            <text x="420" y="804" text-anchor="middle" class="stereotype-label">&lt;&lt;include&gt;&gt;</text>
+
+            <rect x="388" y="912" width="64" height="16" fill="var(--bg-diagram)" rx="3"/>
+            <text x="420" y="924" text-anchor="middle" class="stereotype-label">&lt;&lt;extend&gt;&gt;</text>
+
+            <!-- Cột Phải -->
+            <rect x="785" y="415" width="70" height="16" fill="var(--bg-diagram)" rx="3"/>
+            <text x="820" y="427" text-anchor="middle" class="stereotype-label">&lt;&lt;include&gt;&gt;</text>
+
+            <rect x="788" y="715" width="64" height="16" fill="var(--bg-diagram)" rx="3"/>
+            <text x="820" y="727" text-anchor="middle" class="stereotype-label">&lt;&lt;extend&gt;&gt;</text>
+          </g>
+
+          <!-- ==========================================================================
+               PHẦN 2. HỘP SYSTEM BOUNDARY (RÀN HẠN HỆ THỐNG - TỐI GIẢN PHẲNG)
+               ========================================================================== -->
+          <rect x="220" y="70" width="860" height="980" rx="12" ry="12" fill="none" stroke="var(--border-diagram)" stroke-width="3" class="system-boundary" />
+
+
+          <!-- ==========================================================================
+               PHẦN 3. DANH SÁCH CÁC USE CASES (OVALS)
+               ========================================================================== -->
+          <g class="usecases">
+            
+            <!-- ================= CỘT TRÁI (Admin & Dispatcher) ================= -->
+            <!-- UC1: Quản lý tài khoản hệ thống (420, 140) -->
+            <g class="usecase" transform="translate(420, 140)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Quản lý tài khoản</tspan>
+                <tspan x="0" dy="1.2em">hệ thống</tspan>
+              </text>
+            </g>
+
+            <!-- UC2: Xem báo cáo thống kê (420, 260) -->
+            <g class="usecase" transform="translate(420, 260)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Xem báo cáo</tspan>
+                <tspan x="0" dy="1.2em">thống kê</tspan>
+              </text>
+            </g>
+
+            <!-- UC3: Quản lý thiết bị (420, 380) -->
+            <g class="usecase" transform="translate(420, 380)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Quản lý</tspan>
+                <tspan x="0" dy="1.2em">thiết bị</tspan>
+              </text>
+            </g>
+
+            <!-- UC4: Quản lý danh mục thiết bị (420, 500) -->
+            <g class="usecase" transform="translate(420, 500)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Quản lý danh mục</tspan>
+                <tspan x="0" dy="1.2em">thiết bị</tspan>
+              </text>
+            </g>
+
+            <!-- UC12: Tra cứu trạng thái thiết bị (420, 620) -->
+            <g class="usecase" transform="translate(420, 620)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Tra cứu trạng thái</tspan>
+                <tspan x="0" dy="1.2em">thiết bị</tspan>
+              </text>
+            </g>
+
+            <!-- UC5: Lập lịch phân công thiết bị (420, 740) -->
+            <g class="usecase" transform="translate(420, 740)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Lập lịch phân công</tspan>
+                <tspan x="0" dy="1.2em">thiết bị</tspan>
+              </text>
+            </g>
+
+            <!-- UC6: Xem lịch trình phân công (420, 860) -->
+            <g class="usecase" transform="translate(420, 860)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Xem lịch trình</tspan>
+                <tspan x="0" dy="1.2em">phân công</tspan>
+              </text>
+            </g>
+
+            <!-- UC7: Cập nhật trạng thái phân công (420, 980) -->
+            <g class="usecase" transform="translate(420, 980)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Cập nhật trạng thái</tspan>
+                <tspan x="0" dy="1.2em">phân công</tspan>
+              </text>
+            </g>
+
+            <!-- ================= CỘT PHẢI (Technician) ================= -->
+            <!-- UC8: Ghi nhận nhật ký bảo trì (820, 350) -->
+            <g class="usecase" transform="translate(820, 350)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Ghi nhận</tspan>
+                <tspan x="0" dy="1.2em">nhật ký bảo trì</tspan>
+              </text>
+            </g>
+
+            <!-- UC11: Cập nhật phụ tùng thay thế (820, 500) -->
+            <g class="usecase" transform="translate(820, 500)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Cập nhật</tspan>
+                <tspan x="0" dy="1.2em">phụ tùng thay thế</tspan>
+              </text>
+            </g>
+
+            <!-- UC9: Xem lịch sử bảo trì (820, 650) -->
+            <g class="usecase" transform="translate(820, 650)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Xem lịch sử</tspan>
+                <tspan x="0" dy="1.2em">bảo trì</tspan>
+              </text>
+            </g>
+
+            <!-- UC10: Cập nhật trạng thái bảo trì (820, 800) -->
+            <g class="usecase" transform="translate(820, 800)">
+              <ellipse cx="0" cy="0" rx="110" ry="35" class="usecase-ellipse" />
+              <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" class="usecase-text">
+                <tspan x="0" dy="-0.25em">Cập nhật trạng thái</tspan>
+                <tspan x="0" dy="1.2em">bảo trì</tspan>
+              </text>
+            </g>
+
+          </g>
+
+          <!-- ==========================================================================
+               PHẦN 4. DANH SÁCH CÁC ACTORS (NHÂN VẬT)
+               ========================================================================== -->
+          <g class="actors">
+            
+            <!-- ADMIN (x=100, y=220) - Bên Trái -->
+            <g class="actor">
+              <circle cx="100" cy="220" r="16" class="actor-circle" />
+              <line x1="100" y1="236" x2="100" y2="280" class="actor-line" />
+              <path d="M 100 245 L 75 270 M 100 245 L 125 270" class="actor-line" />
+              <path d="M 100 280 L 80 320 M 100 280 L 120 320" class="actor-line" />
+              <text x="100" y="348" text-anchor="middle" class="actor-text">Admin</text>
+              <text x="100" y="366" text-anchor="middle" class="actor-role">(Quản trị viên)</text>
+            </g>
+
+            <!-- DISPATCHER (x=100, y=780) - Bên Trái -->
+            <g class="actor">
+              <circle cx="100" cy="780" r="16" class="actor-circle" />
+              <line x1="100" y1="796" x2="100" y2="840" class="actor-line" />
+              <path d="M 100 805 L 75 830 M 100 805 L 125 830" class="actor-line" />
+              <path d="M 100 840 L 80 880 M 100 840 L 120 880" class="actor-line" />
+              <text x="100" y="908" text-anchor="middle" class="actor-text">Dispatcher</text>
+              <text x="100" y="926" text-anchor="middle" class="actor-role">(Điều phối viên)</text>
+            </g>
+
+            <!-- TECHNICIAN (x=1180, y=570) - Bên Phải -->
+            <g class="actor">
+              <circle cx="1180" cy="570" r="16" class="actor-circle" />
+              <line x1="1180" y1="586" x2="1180" y2="630" class="actor-line" />
+              <path d="M 1180 595 L 1155 620 M 1180 595 L 1205 620" class="actor-line" />
+              <path d="M 1180 630 L 1160 670 M 1180 630 L 1200 670" class="actor-line" />
+              <text x="1180" y="698" text-anchor="middle" class="actor-text">Technician</text>
+              <text x="1180" y="716" text-anchor="middle" class="actor-role">(Kỹ thuật viên)</text>
+            </g>
+
+          </g>
+
+        </svg>
+        <!-- KẾT THÚC SVG -->
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function changeTheme(themeId) {
+      document.body.setAttribute('data-theme', themeId);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-theme-id') === themeId) {
+          btn.classList.add('active');
+        }
+      });
+    }
+
+    function toggleGrid() {
+      const isChecked = document.getElementById('gridToggle').checked;
+      const gridRect = document.getElementById('gridRect');
+      if (isChecked) {
+        gridRect.style.display = 'block';
+      } else {
+        gridRect.style.display = 'none';
+      }
+    }
+
+    function enterScreenshotMode() {
+      document.body.classList.add('screenshot-mode');
+      
+      const svg = document.getElementById('usecaseSvg');
+      const container = document.getElementById('canvasContainer');
+      const scale = Math.min(container.clientWidth / 1300, container.clientHeight / 1100) * 0.95;
+      
+      const card = document.getElementById('diagramCard');
+      card.style.transform = `scale(${scale})`;
+      card.style.transformOrigin = 'center';
+    }
+
+    function exitScreenshotMode() {
+      document.body.classList.remove('screenshot-mode');
+      const card = document.getElementById('diagramCard');
+      card.style.transform = 'none';
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        exitScreenshotMode();
+      }
+    });
+
+    function downloadSVG() {
+      const svgElement = document.getElementById('usecaseSvg').cloneNode(true);
+      const style = document.createElement('style');
+      style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&family=Plus+Jakarta+Sans:wght@500;700&display=swap');
+        svg { background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-diagram').trim()}; }
+        .system-boundary { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--border-diagram').trim()}; fill: none; }
+        .system-tab { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-diagram').trim()}; stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--border-diagram').trim()}; }
+        .rel-line-solid { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--line-solid').trim()}; stroke-width: 2.5; fill: none; }
+        .rel-line-dashed { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--line-dashed').trim()}; stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+        .usecase-ellipse { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--usecase-bg').trim()}; stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--usecase-stroke').trim()}; stroke-width: 2.5; }
+        .usecase-text { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--usecase-text').trim()}; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14.5px; }
+        .stereotype-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; fill: ${getComputedStyle(document.documentElement).getPropertyValue('--text-label').trim()}; }
+        .actor-circle { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-head-fill').trim()}; stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-stroke').trim()}; stroke-width: 4; }
+        .actor-line { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-stroke').trim()}; stroke-width: 4; fill: none; }
+        .actor-text { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; fill: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-text').trim()}; }
+        .actor-role { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 500; fill: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-text').trim()}; opacity: 0.8; }
+      `;
+      svgElement.insertBefore(style, svgElement.firstChild);
+
+      const gridToggle = document.getElementById('gridToggle');
+      if (!gridToggle.checked) {
+        const gridRect = svgElement.querySelector('#gridRect');
+        if (gridRect) gridRect.remove();
+      }
+
+      const svgString = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+      
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = 'machinery_usecase_diagram.svg';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadPNG() {
+      const svgElement = document.getElementById('usecaseSvg');
+      const svgClone = svgElement.cloneNode(true);
+      const style = document.createElement('style');
+      style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700&family=Plus+Jakarta+Sans:wght@500;700&display=swap');
+        svg { background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-diagram').trim()}; }
+        .system-boundary { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--border-diagram').trim()}; fill: none; }
+        .system-tab { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-diagram').trim()}; stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--border-diagram').trim()}; }
+        .rel-line-solid { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--line-solid').trim()}; stroke-width: 2.5; fill: none; }
+        .rel-line-dashed { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--line-dashed').trim()}; stroke-width: 2; stroke-dasharray: 6 5; fill: none; }
+        .usecase-ellipse { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--usecase-bg').trim()}; stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--usecase-stroke').trim()}; stroke-width: 2.5; }
+        .usecase-text { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--usecase-text').trim()}; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14.5px; }
+        .stereotype-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11.5px; font-weight: 700; fill: ${getComputedStyle(document.documentElement).getPropertyValue('--text-label').trim()}; }
+        .actor-circle { fill: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-head-fill').trim()}; stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-stroke').trim()}; stroke-width: 4; }
+        .actor-line { stroke: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-stroke').trim()}; stroke-width: 4; fill: none; }
+        .actor-text { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700; fill: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-text').trim()}; }
+        .actor-role { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 500; fill: ${getComputedStyle(document.documentElement).getPropertyValue('--actor-text').trim()}; opacity: 0.8; }
+      `;
+      svgClone.insertBefore(style, svgClone.firstChild);
+
+      const gridToggle = document.getElementById('gridToggle');
+      if (!gridToggle.checked) {
+        const gridRect = svgClone.querySelector('#gridRect');
+        if (gridRect) gridRect.remove();
+      }
+
+      const svgString = new XMLSerializer().serializeToString(svgClone);
+      const svgBlob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = 1300;
+      canvas.height = 1100;
+      const ctx = canvas.getContext('2d');
+      
+      const img = new Image();
+      img.onload = function() {
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-diagram').trim() || '#ffffff';
+        ctx.fillRect(0, 0, 1300, 1100);
+        ctx.drawImage(img, 0, 0);
+        
+        const png = canvas.toDataURL('image/png');
+        const downloadLink = document.createElement('a');
+        downloadLink.href = png;
+        downloadLink.download = 'machinery_usecase_diagram.png';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    }
+  </script>
+</body>
+</html>
