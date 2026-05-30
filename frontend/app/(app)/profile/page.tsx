@@ -261,7 +261,7 @@ function ProfileContent() {
               </div>
             ) : (
               <p className="text-sm text-slate-500">
-                Chưa có hoạt động gần đây trong database.
+                Chưa có hoạt động gần đây.
               </p>
             )}
           </Card>

@@ -114,7 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [user] = useState(() => getStoredUser());
+  const [user, setUser] = useState(() => getStoredUser());
   const avatarUrl = user?.avatarUrl || fallbackAvatarUrl;
   const visibleNavItems = navItems.filter((item) => {
     if (item.href === "/accounts") {
@@ -125,6 +125,20 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notificationRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function syncStoredUser() {
+      setUser(getStoredUser());
+    }
+
+    window.addEventListener("storage", syncStoredUser);
+    window.addEventListener("gnoudcrm:user-updated", syncStoredUser);
+
+    return () => {
+      window.removeEventListener("storage", syncStoredUser);
+      window.removeEventListener("gnoudcrm:user-updated", syncStoredUser);
+    };
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

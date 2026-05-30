@@ -130,23 +130,29 @@ export function storeAuthSession(auth: AuthResponse) {
     auth.tokens.refreshToken,
   );
   window.localStorage.setItem(tokenStorageKeys.user, JSON.stringify(auth.user));
+  window.dispatchEvent(new CustomEvent("gnoudcrm:user-updated", { detail: auth.user }));
 }
 
 export function updateStoredUser(user: Partial<AuthUser>) {
   if (typeof window === "undefined") {
-    return;
+    return null;
   }
 
   const currentUser = getStoredUser();
 
   if (!currentUser) {
-    return;
+    return null;
   }
+
+  const updatedUser = { ...currentUser, ...user };
 
   window.localStorage.setItem(
     tokenStorageKeys.user,
-    JSON.stringify({ ...currentUser, ...user }),
+    JSON.stringify(updatedUser),
   );
+  window.dispatchEvent(new CustomEvent("gnoudcrm:user-updated", { detail: updatedUser }));
+
+  return updatedUser;
 }
 
 export function clearAuthSession() {
@@ -157,6 +163,7 @@ export function clearAuthSession() {
   window.localStorage.removeItem(tokenStorageKeys.accessToken);
   window.localStorage.removeItem(tokenStorageKeys.refreshToken);
   window.localStorage.removeItem(tokenStorageKeys.user);
+  window.dispatchEvent(new CustomEvent("gnoudcrm:user-updated", { detail: null }));
 }
 
 export async function apiFetch<T>(
